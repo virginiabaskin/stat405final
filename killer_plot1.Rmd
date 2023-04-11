@@ -1,0 +1,259 @@
+---
+title: "Killer Plot"
+subtitle: "Group 3"
+author: "Grace Wang, Virginia Baskin, Siddhi Narayan"
+date: "2023-04-10"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(RSQLite)
+library(dplyr)
+library(stringr)
+library(grid)
+library(readr)
+options(dplyr.summarise.inform = FALSE)
+
+full_htx <- read_csv("/Users/virginiabaskin/Downloads/tx_houston_2023_01_26.csv")
+census_csv <- read_csv("/Users/virginiabaskin/Downloads/Census Data Houston.csv")
+mini_htx <- full_htx[seq(1,2000000,3),]
+mini_htx <- mini_htx %>% rename("Beats" = "beat")
+#beats_data <- read_csv("Datasets/COH_POLICE_BEATS.csv")
+#htx_stats <- read_csv("Datasets/DECENNIALPL2020.P2-2023-03-02T224324.csv")
+```
+
+```{r, echo=FALSE, results='hide'}
+
+# subset the data to only contain columns of interest
+citations_htx <- mini_htx[,c("subject_race", "subject_sex", "date", "violation")]
+
+# subset the data to only contain rows of violation interest
+citations_htx <- citations_htx %>% 
+  filter(grepl("RED LIGHT", violation)|grepl("STOP SIGN", violation)|
+           grepl("SEAT BELT", violation)|grepl("FINANCIAL RESPONSIBILITY", violation)|
+           grepl("LICENSE", violation)|grepl("SPEEDING", violation)) %>%
+  mutate(date = format(date, format = "%Y"))
+
+#create the circles dataframe which counts individuals in each race, year pairing
+citations_htx_circle <- citations_htx %>%
+  group_by(subject_race, date) %>%
+  summarise(n_individuals = n())
+citations_htx_circle
+
+# create the bars dataframe which counts the number of individuals in each race, year, violation, pairing
+
+# create a dataframe with all possible combinations of race, date, sex, and violation
+citations_htx_bar <- citations_htx %>%
+  mutate(red_stop= if_else(grepl("RED LIGHT", violation)|grepl("STOP SIGN", violation), 1, 0)) %>%
+  mutate(seat_belt= if_else(grepl("SEAT BELT", violation), 1, 0)) %>%
+  mutate(fin_resp= if_else(grepl("FINANCIAL RESPONSIBILITY", violation), 1, 0))%>%
+  mutate(license= if_else(grepl("LICENSE", violation), 1, 0))%>%
+  mutate(speeding= if_else(grepl("SPEEDING", violation), 1, 0))%>%
+  select(-violation)%>%
+  group_by(date, subject_race, subject_sex, red_stop, seat_belt, fin_resp, license, speeding)%>%
+  summarise(n_individuals = n())
+citations_htx_bar
+```
+
+```{r Barplot Function, echo=FALSE, results='hide'}
+barplot <- function(red_stop_m, red_stop_f, seat_belt_m, seat_belt_f, fin_resp_m, fin_resp_f, license_m, license_f, speeding_m, speeding_f){
+  y <- c(0.5, 0.5)
+  x <- c(0, 1.1)
+  #grid.newpage()
+  citations <- c("red_stop", "seat_belt", "fin_resp", "license", "speeding")
+  male <- c(red_stop_m, seat_belt_m, fin_resp_m, license_m, speeding_m)
+  max_male <- max(male)
+  female <- c(red_stop_f, seat_belt_f, fin_resp_f, license_f, speeding_f)
+  max_female <- max(female)
+  colors <- c("lightcyan","lightpink","moccasin","skyblue1","thistle1")
+  for (i in 1:5){
+    male_scale <-  male[i]/(2*max(male))
+    female_scale <- female[i]/(2*max(female))
+    grid.rect(x=0.2*i-0.1, y = 0.5+0.5*male_scale, height = male_scale, width = 0.199, gp = gpar(fill = colors[i]))
+    grid.rect(x=0.2*i-0.1, y = 0.5-0.5*female_scale, height = female_scale, width = 0.199, gp = gpar(fill = colors[i]))
+    #grid.text(citations[i], x = 0.2*i-0.1, y = 0.52)
+  }
+   grid.lines(x, y, gp = gpar(lwd = 1, col = "black"))
+   #grid.text ("M", x = 0.9, y = 0.9)
+   #grid.text ("F", x = 0.9, y = 0.1)
+}
+```
+
+```{r slay, echo=FALSE, results='hide'}
+bar_run <- function(plot_race,plot_year){
+  new_df <- citations_htx_bar[which(citations_htx_bar$date == plot_year), ]
+  new_df <- new_df[which(citations_htx_bar$subject_race == plot_race),]
+  male_df <- new_df[which(new_df$subject_sex == "male"),]
+  female_df <- new_df[which(new_df$subject_sex == "female"),]
+  red_stop_m <- sum(male_df$red_stop == 1)
+  red_stop_f <- sum(female_df$red_stop == 1)
+  seat_belt_m <- sum(male_df$seat_belt == 1)
+  seat_belt_f <- sum(female_df$seat_belt == 1)
+  fin_resp_m <- sum(male_df$fin_resp == 1)
+  fin_resp_f <- sum(female_df$fin_resp == 1)
+  license_m <- sum(male_df$license == 1)
+  license_f <- sum(female_df$license == 1)
+  speeding_m <- sum(male_df$speeding == 1)
+  speeding_f <- sum(female_df$speeding == 1)
+  barplot(red_stop_m, red_stop_f, seat_belt_m, seat_belt_f, fin_resp_m, fin_resp_f, license_m, license_f, speeding_m, speeding_f)
+}
+#bar_run("white", 2014)  
+```
+
+```{r Circles, echo=FALSE, results='hide'}
+
+#DRAW CIRCLE FUNCTION DONE
+
+#given frequency, plot a properly scaled circle in the center of the viewpoint
+#max_cite is the citation count of the race, year with the most citations
+#found by max(cite_counts_list)
+draw_circle <- function(count, max_count = max_cite){
+  my_circle <- circleGrob(name = "my_circle",
+                          x = 0.5, y = 0.5, r = .8*count/(max_count), #radius scale needs to be fixed and them im done
+                          gp = gpar(col = "black", fill = "#BEBEBE66", lty = 1, lwt = 2))
+  grid.draw(my_circle)
+}
+
+# draw_circle(6, 10)
+# popViewport()
+
+```
+
+```{r, echo=FALSE, results='hide'}
+legend <- function(citations, colors){
+  grid.rect(x = 0, y= 0, just = c("left", "bottom"), width = 1, height = .9)
+  grid.text("LEGEND",
+          x = .5, y = 0.915, just = c("center", "bottom"),
+          gp = gpar(fontsize = 10, fontface = "bold"))
+
+  #citations + corresponding colors
+  #citations <- c("Red/Stop", "Seat Belt", "Financial", "License", "Speeding")
+  #colors <- c("lightcyan","lightpink","moccasin","skyblue1","thistle1")
+  ys <- c(0.74, 0.65, 0.56, 0.47, 0.38)
+  grid.text("Citation Type", x= 0.05, y= 0.87, just = c("left", "top"), gp = gpar(fontsize=8, fontface="bold"))
+  for (i in 1:5){
+    grid.rect(x = 0.17, y = ys[i], just = c("left", "bottom"), height = 0.077, width = 0.15, 
+              gp = gpar(col = "black", fill=colors[i]))
+    grid.text(citations[i], x = 0.37, y = ys[i]+0.038, just = c("left", "center"), gp = gpar(fontsize=7))
+  }
+
+  grid.text("Citation Frequency", x = 0.04, y = 0.34, just = c("left", "top"), gp = gpar(fontsize=8, fontface="bold"))
+  grid.text("Compared to other (race, year)s", x = 0.037, y = 0.3, just = c("left", "top"), gp = gpar(fontsize=5))
+  #comparatively less citations for race that year 
+  #comparatively more citations
+
+  grid.circle(x = 0.15, y = 0.233, r = 0.04, gp = gpar(col = "black", fill = "#BEBEBE66", lty = 1, lwt = 2))
+  grid.text("Less Citations", x = 0.3, y = 0.233, just = c("left", "center"), gp = gpar(fontsize=7))
+  grid.text("Overall", x = 0.43, y = 0.2, just = c("left", "center"), gp = gpar(fontsize=7))
+
+  grid.circle(x = 0.18, y = 0.11, r = 0.175, gp = gpar(col = "black", fill = "#BEBEBE66", lty = 1, lwt = 2))
+  grid.text("More Citations", x = 0.4, y = 0.11, just = c("left", "center"), gp = gpar(fontsize=7))
+  grid.text("Overall", x = 0.53, y = 0.075, just = c("left", "center"), gp = gpar(fontsize=7))
+}
+```
+
+```{r Putting Together the Killer Plot, echo=FALSE}
+# PUT IT ALL TOGETHER
+grid.newpage()
+
+#legend viewport 
+pushViewport(viewport(
+  x = 0.84, y = 0.33, just = c("left", "bottom"),
+  width = 0.16, height = 0.57
+))
+
+#plot legend
+citations <- c("Red/Stop", "Seat Belt", "Financial", "License", "Speeding")
+colors <- c("lightcyan","lightpink","moccasin","skyblue1","thistle1")
+legend(citations, colors)
+
+popViewport()
+
+#main viewport
+pushViewport(viewport(
+  x = 0.1, y = 0.1, just = c("left", "bottom"),
+  width = 0.8, height = 0.9
+))
+#axis
+grid.lines(c(1.75/8, 0.9), c(1.5/8, 1.5/8))
+grid.lines(c(1.75/8, 1.75/8), c(1.5/8, 0.9))
+#grid.lines(c(0.1, 0.9), c(0.5, 0.5))
+grid.text("Killer Plot",
+          x = 1.75/8, y = 0.925, just = c("left", "bottom"),
+          gp = gpar(fontsize = 18)
+)
+pushViewport(viewport(
+  x = 0.1, y = 0.1, just = c("left", "bottom"),
+  width = 0.8, height = 0.8
+))
+#grid.rect(x=0.5, y=0.5, width = 1, height=1)
+rows <- 8
+cols <- 6
+ly <- grid.layout(rows, cols)
+pushViewport(viewport(layout = ly))
+#makes a viewpoint for each 
+
+# vectors to iterate through for different parameters
+races <- unique(citations_htx_bar$subject_race) # races
+years <- unique(citations_htx_bar$date) # dates
+
+# set row labels
+for (i in 1:(rows-1)) {
+  pushViewport(viewport(layout.pos.row=i, layout.pos.col = 1))
+  grid.text(years[i])
+  popViewport()}
+
+# set column labels
+for (j in 2:cols){
+  pushViewport(viewport(layout.pos.row=8, layout.pos.col = j))
+  if (races[j-1]=="asian/pacific islander"){
+    grid.text("AAPI", gp = gpar(fontsize = 12))
+  }
+  else{
+    grid.text(races[j-1], gp = gpar(fontsize = 12))
+  }
+  popViewport()
+}
+
+
+for (i in 1:(rows-1)) {
+  for (j in 2:cols) {
+    
+    # push main grid Viewport
+    pushViewport(viewport(layout.pos.row=i, layout.pos.col = j))
+    
+    # push small viewport
+    pushViewport(viewport(width=0.75, height=0.75, just="centre"))
+    
+    # make bar plot
+    bar_run(races[j-1], years[i])
+    
+    if (j==2){
+      if (i==1){
+        grid.text("M", x = 0.1, y = 0.9, gp=gpar(fontsize=8))
+        grid.text("F", x = 0.1, y = 0.1, gp=gpar(fontsize=8))
+      }
+    }
+    
+    # make circle
+    count <- pull(citations_htx_circle[citations_htx_circle['subject_race']==races[j-1] &                          citations_htx_circle['date']==years[i],"n_individuals"])[1]
+    #max_count <- sum(citations_htx_circle$n_individuals)
+    max_count <- max(citations_htx_circle$n_individuals)
+    draw_circle(count, max_count)
+    
+    # pop small viewport
+    popViewport()
+    
+    # pop main grid viewport
+    popViewport()
+  }
+}
+```
+
+
+For our killer plot, we have constructed a visualization depicting the frequency of each citation type for every race, year combination. The frequency of citations is represented by mirrored bar plots for each year and race combination, with citation count for males being plotted above the horizontal axis and citation count for females being plotted below. Overlaid on each bar plot is a circle, the radius of which is normalized to the race, year combination with the greatest citations, therefore providing a comparative representation of the number of citations for each race, year combination. Altogether, this plot allows us to comprehensively view our dataset and the distribution of citations across race, year, and sex.     
+
+From this plot, we observed a fairly symmetrical distribution of citations between males in females in all years for white and black individuals. However, for individuals of AAPI, individual, and unknown race, the distribution of arrests fluctuated between each gender each year, possibly due to the low number of arrests for these three races overall. Notably, in 2015, 2018, and 2020, it appears that nearly all citations issued to AAPI individuals were given to women, but the low overall quantity of citations given to AAPI individuals in these years means that this pattern is likely not indicative of any bias.    
+
+Among black, white and AAPI individuals, license-related issues and failure to establish financial responsibility were the two most common citations in every year. This makes sense, as these two citations are often concurrent with others, as officers must check individuals' license and registration after being pulled over for any offense. 
