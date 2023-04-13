@@ -233,7 +233,9 @@ shinyServer(function(input, output) {
           
           # make circle
           count <- pull(citations_htx_circle[citations_htx_circle['subject_race']==races[j-1] &
-                                               citations_htx_circle['date']==years[i],"n_individuals"])[1]
+                                               citations_htx_circle['date']==years[i] &
+                                               citations_htx_circle['district'] == as.numeric(input$districts),
+                                             "n_individuals"])[1]
           #max_count <- sum(citations_htx_circle$n_individuals)
           max_count <- max(citations_htx_circle$n_individuals)
           draw_circle(count, max_count)
