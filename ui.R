@@ -8,6 +8,7 @@
 #
 
 library(shiny)
+source("shiny_plot_setup.R")
 
 # Define UI for application that draws a histogram
 shinyUI(fluidPage(
@@ -18,13 +19,9 @@ shinyUI(fluidPage(
     # Sidebar with a slider input for number of bins
     sidebarLayout(
         sidebarPanel(
-            checkboxGroupInput(inputId = "districts",
-                        "Districts to show:",
-                        c("1", "2", "3", "4", "5",
-                          "6", "7", "8", "9", "10",
-                          "11", "12", "13", "14", "15",
-                          "16", "17", "18", "19", "20",
-                          "21", "22", "23", "24"))
+          sliderInput("districts", "District:",
+                      min = 1, max = 24,
+                      value = 1, step = 1)
         ),
 
         # Show a plot of the generated distribution
