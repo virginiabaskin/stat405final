@@ -8,6 +8,8 @@ runtime: shiny
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE)
+source("shiny_plot_setup.R", echo=FALSE)
+#show_col_types = FALSE
 ```
 
 ## Shiny Presentation
@@ -63,20 +65,23 @@ summary(cars)
 
 ## Exploration 
 
---- 
-plots
-- plot of citations by race over time
-- plot of frequency of citation versus hour in day
-- mph over speed limit by year
+- plot of citations by race over time  
+- plot of frequency of citation versus hour in day  
+- mph over speed limit by year  
 
----
-plot 
-
---- 
-
-```{r}
-#source("plots/plot.r", local = TRUE, print.eval = TRUE)
+## Pyramid 
+```{r, message = FALSE}
+source("subscripts/citation_pyramid.R", local = TRUE, print.eval = FALSE, echo= FALSE, verbose= FALSE)
+pyramid_cites()
 ```
+
+
+## Violin
+```{r, message = FALSE}
+source("subscripts/violin_speed.R")
+violin_speed()
+```
+
 
 --- 
 ## Killer Plot 
@@ -85,4 +90,6 @@ plot
 
 ---
 
+#Race Line Graph by Year: line_ry()
+#waffle plot: waffle()
 

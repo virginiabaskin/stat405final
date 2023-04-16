@@ -10,11 +10,18 @@ options(dplyr.summarise.inform = FALSE)
 # import data
 # full_htx <- read_csv("/stat405final/Datasets/tx_houston_2023_01_26.csv")
 census_csv <- read_csv("Datasets/Census Data Houston.csv")
+#invisible()
 mini_htx <- read_csv("Datasets/mini_htx.csv")
+#invisible(mini_htx)
 # mini_htx <- full_htx[seq(1,2000000,3),]
 mini_htx <- mini_htx %>% rename("Beats" = "beat")
 #beats_data <- read_csv("Datasets/COH_POLICE_BEATS.csv")
 #htx_stats <- read_csv("Datasets/DECENNIALPL2020.P2-2023-03-02T224324.csv")
+
+mini_htx2 <- mini_htx[seq(1,666666,30),]
+mini_htx2$district <- factor(mini_htx2$district)
+mini_htx2$diff <- abs(mini_htx2$speed - mini_htx2$posted_speed)
+mini_htx$diff <- abs(mini_htx$speed - mini_htx$posted_speed)
 
 # subset the data to only contain columns of interest
 citations_htx <- mini_htx[,c("subject_race", "subject_sex", "district", "date", "violation")]
