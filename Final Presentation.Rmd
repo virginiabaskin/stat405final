@@ -1,0 +1,88 @@
+---
+title: "Final Presenation"
+author: "Siddhi Narayan"
+date: "2023-04-16"
+output: ioslides_presentation
+runtime: shiny
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+# Introduction
+
+## Primary Dataset: Citations in HTX
+Insert description
+
+## Secondary Datasets
+* Census Data
+* GIS/Beats Data
+
+## Census Data
+
+## GIS/Beats Data
+
+# Exploration
+
+## Introduction to Exploration
+
+## Understanding
+* Plot - Latitude and Longitude of Stops 
+
+##
+plot 
+
+## Distribution Over Time
+* Plot - Line Graph of Citations by Race over Time
+* Plot - Frequency of Citations vs. Hours in Day
+
+##
+plot
+
+##
+plot
+
+## Distribution by Demographic
+* Plot - Waffle Chart of Citation by Race 
+* Plot - MPH over Speed Limit for Race/Gender
+
+## 
+plot
+
+##
+plot
+
+## Distribution by Location
+* Plot - Citation by Sex by District 
+* Table - Citations Per Square Mile 
+
+## 
+plot
+
+## 
+table
+
+## Cumulative: Killer Plot
+<iframe src="http://127.0.0.1:4571/" width="100%"></iframe>
+# Analysis
+ 
+## Introduction to Analysis
+
+## Houston Racial Breakdown vs Citations Racial Breakdown
+table
+
+## Citation Type Racial Breakdown
+table
+
+## Failure to Establish Financial Responsibility
+table
+
+## Average Speeding Amounts
+table
+
+# Conclusion
+
+## Conclusions
+conclusions
+
