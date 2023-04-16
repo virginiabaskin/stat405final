@@ -71,7 +71,13 @@ unknown$year <- unlist(lapply(unknown$date, year_only))
 points(sort(unique(unknown$year)), as.vector(table(as.factor(unknown$year))))
 lines(sort(unique(unknown$year)), as.vector(table((as.factor(unknown$year)))), type = "l", col = "orange")
 
-legend("topright", legend=c("black", "white", "aapi", "unknown"), col=c("blue", "red", "green", "orange"), pch = 20, cex = 0.7, title = "Race")
+  other <- race_date[race_date$subject_race=="other",]
+  other$year <- unlist(lapply(other$date, year_only))
+  points(sort(unique(other$year)), as.vector(table(as.factor(other$year))))
+  lines(sort(unique(other$year)), as.vector(table((as.factor(other$year)))), 
+        type = "l", col = "purple")
+
+legend("topright", legend=c("black", "white", "aapi", "unknown", "other"), col=c("blue", "red", "green", "orange", "purple"), pch = 20, cex = 0.7, title = "Race")
 
 ```
 
@@ -127,6 +133,7 @@ Next, we want to explore the spatial features of our data. We have both the lati
 
 ```{r, echo=FALSE}
 #mini_htx2 <- mini_htx[seq(1,666666,6),]
+
 mini_htx2$diff <- abs(mini_htx2$speed - mini_htx2$posted_speed)
 mini_htx3 <- mini_htx2[, c("date", "diff")]
 mini_htx3 <- na.omit(mini_htx3)

@@ -3,6 +3,8 @@ library(dplyr)
 library(stringr)
 library(grid)
 library(readr)
+library(ggfortify)
+library(ggthemes)
 options(dplyr.summarise.inform = FALSE)
 
 # import data
