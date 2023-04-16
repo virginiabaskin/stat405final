@@ -29,7 +29,7 @@ citations_htx <- citations_htx %>%
 #create the circles dataframe which counts individuals in each race, year, district pairing
 citations_htx_circle <- citations_htx %>%
   group_by(subject_race, date, district) %>%
-  filter_at(vars("district"), all_vars(!is.na(.)))%>%
+  na.omit()%>%
   summarise(n_individuals = n()) 
 
 # create the bars dataframe which counts the number of individuals in each race, year, district, violation, pairing
@@ -72,9 +72,9 @@ barplot <- function(red_stop_m, red_stop_f, seat_belt_m, seat_belt_f, fin_resp_m
 }
 
 bar_run <- function(plot_race,plot_year, districts){
-  new_df <- citations_htx_bar[which(citations_htx_bar$date == plot_year), ]
-  new_df <- new_df[which(citations_htx_bar$subject_race == plot_race),]
-  new_df <- new_df[which(citations_htx_bar$district %in% districts),]
+  new_df <- citations_htx_bar[which(citations_htx_bar$date == plot_year &
+                                      citations_htx_bar$subject_race==plot_race &
+                                      citations_htx_bar$district==districts), ]
   male_df <- new_df[which(new_df$subject_sex == "male"),]
   female_df <- new_df[which(new_df$subject_sex == "female"),]
   red_stop_m <- sum(male_df$red_stop == 1)

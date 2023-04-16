@@ -82,8 +82,8 @@ barplot <- function(red_stop_m, red_stop_f, seat_belt_m, seat_belt_f, fin_resp_m
 
 ```{r slay, echo=FALSE, results='hide'}
 bar_run <- function(plot_race,plot_year){
-  new_df <- citations_htx_bar[which(citations_htx_bar$date == plot_year), ]
-  new_df <- new_df[which(citations_htx_bar$subject_race == plot_race),]
+  new_df <- citations_htx_bar[which(citations_htx_bar$date == plot_year &
+                                      citations_htx_bar$subject_race==plot_race), ]
   male_df <- new_df[which(new_df$subject_sex == "male"),]
   female_df <- new_df[which(new_df$subject_sex == "female"),]
   red_stop_m <- sum(male_df$red_stop == 1)
