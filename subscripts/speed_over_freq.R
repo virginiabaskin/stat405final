@@ -3,9 +3,9 @@ source("shiny_plot_setup.R")
 #frequency of different levels
 speed_over_freq <- function(){
 
-  mini_htx2 <- mini_htx[seq(1,666666,30),]
-  mini_htx2$district <- factor(mini_htx2$district)
-  mini_htx2$diff <- abs(mini_htx2$speed - mini_htx2$posted_speed)
+  #mini_htx2 <- mini_htx[seq(1,666666,30),]
+  #mini_htx2$district <- factor(mini_htx2$district)
+  #mini_htx2$diff <- abs(mini_htx2$speed - mini_htx2$posted_speed)
   mini_htx3 <- mini_htx2[, c("date", "diff")]
   mini_htx3 <- na.omit(mini_htx3)
   mini_htx3 <- mini_htx3[mini_htx3$diff != 693,]
