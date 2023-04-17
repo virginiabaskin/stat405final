@@ -71,10 +71,10 @@ unknown$year <- unlist(lapply(unknown$date, year_only))
 points(sort(unique(unknown$year)), as.vector(table(as.factor(unknown$year))))
 lines(sort(unique(unknown$year)), as.vector(table((as.factor(unknown$year)))), type = "l", col = "orange")
 
-  other <- race_date[race_date$subject_race=="other",]
-  other$year <- unlist(lapply(other$date, year_only))
-  points(sort(unique(other$year)), as.vector(table(as.factor(other$year))))
-  lines(sort(unique(other$year)), as.vector(table((as.factor(other$year)))), 
+other <- race_date[race_date$subject_race=="other",]
+other$year <- unlist(lapply(other$date, year_only))
+points(sort(unique(other$year)), as.vector(table(as.factor(other$year))))
+lines(sort(unique(other$year)), as.vector(table((as.factor(other$year)))), 
         type = "l", col = "purple")
 
 legend("topright", legend=c("black", "white", "aapi", "unknown", "other"), col=c("blue", "red", "green", "orange", "purple"), pch = 20, cex = 0.7, title = "Race")

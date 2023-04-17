@@ -1,7 +1,7 @@
 ---
 title: "Final Presenation"
-author: "Siddhi Narayan"
-date: "2023-04-16"
+author: "Siddhi Narayan, Grace Wang, Virginia"
+date: "2023-04-17"
 output: 
   ioslides_presentation:
     widescreen: true
@@ -36,38 +36,55 @@ Insert description
 ##
 plot 
 
-## Distribution Over Time
+# Distribution Over Time
 * Plot - Line Graph of Citations by Race over Time
 * Plot - Frequency of Citations vs. Hours in Day
 
-##
-plot
+## Citation Count by Race over the Years
+```{r Race/Year Line, message=FALSE}
+source("subscripts/line_race_year.R", local=TRUE, print.eval=TRUE)
+line_ry()
+```
 
-##
-plot
+## Citation Frequency for Time of Day
+```{r Time of Day Freq, message=FALSE}
+source("subscripts/line_timeofcites.R", local=TRUE, print.eval=TRUE)
+time_line()
+```
 
-## Distribution by Demographic
+# Distribution by Demographic
 * Plot - Waffle Chart of Citation by Race 
 * Plot - MPH over Speed Limit for Race/Gender
 
-## 
-plot
+## Citation by Race
+* How close is this to the truth?
+```{r Waffle, message=FALSE}
+source("subscripts/waffle.R", local=TRUE, print.eval=TRUE)
+waffle()
+```
 
-##
-plot
+## MPH over Speed Limit for Race & Gender {.smaller}
+```{r Violin, message=FALSE}
+source("subscripts/violin_speed.R", local=TRUE, print.eval=TRUE)
+violin_speed()
+```
 
-## Distribution by Location
+# Distribution by Location
 * Plot - Citation by Sex by District 
 * Table - Citations Per Square Mile 
 
-## 
-plot
+## Citation by Sex by District
+```{r Pyramid, message = FALSE}
+source("subscripts/citation_pyramid.R", local = TRUE, print.eval = TRUE)
+pyramid_cites()
+```
 
-## 
-table
+## Citations Per Square Mile
+* table
 
 
-## Killer 
+## Killer Plot
+* Further breakdown Killer Plot by Police District
 <iframe src="http://127.0.0.1:5771" width="100%" height="500px"></iframe>
 
 # Analysis

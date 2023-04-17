@@ -3,14 +3,14 @@
 
 source("shiny_plot_setup.R")
 
-race_date <- mini_htx[,c("date", "subject_race")] # race and date
-race_date <- na.omit(race_date) # omit na Values
-
 year_only <- function(fulldate){
   year <- substring(fulldate, 1, 4) # only keep year
 }
 
 line_ry <- function(){ 
+  race_date <- mini_htx[,c("date", "subject_race")] # race and date
+  race_date <- na.omit(race_date) # omit na Values
+  
   black <- race_date[race_date$subject_race=="black",]
   black$year <- unlist(lapply(black$date, year_only))
   plot(sort(unique(black$year)), as.vector(table((as.factor(black$year)))), 

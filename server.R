@@ -38,7 +38,7 @@ shinyServer(function(input, output) {
       grid.lines(c(1.75/8, 0.9), c(1.5/8, 1.5/8))
       grid.lines(c(1.75/8, 1.75/8), c(1.5/8, 0.9))
       #grid.lines(c(0.1, 0.9), c(0.5, 0.5))
-      grid.text("Killer Plot",
+      grid.text("Citation Breakdown by Sex, Race, & Year", #Citation Breakdown by Sex for each Race & Year 
                 x = 1.75/8, y = 0.925, just = c("left", "bottom"),
                 gp = gpar(fontsize = 18)
       )
