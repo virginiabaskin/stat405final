@@ -74,10 +74,14 @@ lines(sort(unique(unknown$year)), as.vector(table((as.factor(unknown$year)))), t
 other <- race_date[race_date$subject_race=="other",]
 other$year <- unlist(lapply(other$date, year_only))
 points(sort(unique(other$year)), as.vector(table(as.factor(other$year))))
-lines(sort(unique(other$year)), as.vector(table((as.factor(other$year)))), 
-        type = "l", col = "purple")
+lines(sort(unique(other$year)), as.vector(table((as.factor(other$year)))), type = "l", col = "purple")
 
-legend("topright", legend=c("black", "white", "aapi", "unknown", "other"), col=c("blue", "red", "green", "orange", "purple"), pch = 20, cex = 0.7, title = "Race")
+graphics::legend("topright", 
+       legend=c("black", "white", "aapi", "unknown", "other"), 
+       col=c("blue", "red", "green", "orange", "purple"), 
+       pch = 20, cex = 0.7, title = "Race")
+
+
 
 ```
 
@@ -125,7 +129,7 @@ mini_htx2 <- mini_htx[seq(1,666666,30),]
 mini_htx2$district <- factor(mini_htx2$district)
 
 plot(mini_htx2$lat, mini_htx2$lng, col = mini_htx2$district, panel.first = grid(8,8),  xlim = c(29.5, 30.15), ylim = c(-96, -95), main = "Latitude & Longitude of Stops by District", xlab = "Latitude", ylab = "Longitude", pch=1)
-legend("bottomright", legend=levels(mini_htx2$district), cex = 0.62, pch=1, col=unique(mini_htx2$district), title = "District")
+graphics::legend("bottomright", legend=levels(mini_htx2$district), cex = 0.62, pch=1, col=unique(mini_htx2$district), title = "District")
 ```
 
 Next, we want to explore the spatial features of our data. We have both the latitude and the longitude of each stop, along with the district and beat. We knew that beat meant a motorized police unit that patrols a specific territory, but “district” in this context is not as clear, as it could mean multiple things. We investigated this by creating a scatterplot of the latitude versus the longitude of stops and colored it by district. We see very clear spatial grouping for each district, which means districts are not a police-defined feature but a location feature. From this plot, we can ascertain that district refers to Houston's subdistricts. [As seen here: https://www.houstontx.gov/police/pdfs/hpd_beat_map.pdf]    
