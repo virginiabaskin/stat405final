@@ -109,6 +109,6 @@ shinyServer(function(input, output) {
           popViewport()
         }
       }
-    }, width=800, height=800)
+    }, width=600, height=450)
 
 })
