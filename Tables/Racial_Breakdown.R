@@ -16,4 +16,5 @@ counts <- data.frame(na.omit(table(mini_htx$subject_race)))
 counts$Freq <- counts$Freq/sum(counts$Freq)
 counts <- counts %>% rename(race = Var1, citation_prop = Freq)
 htx <- inner_join(htx_pop, counts, by = "race")
-
+htx <- htx %>%
+  rename("Race"="race", "Population Proportion"="pop", "Citation Proportion"="citation_prop")
