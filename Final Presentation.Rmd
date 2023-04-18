@@ -23,7 +23,9 @@ source("Tables/csqm.R", echo = FALSE)
 # Introduction
 
 ## Primary Dataset: Citations in HTX
-Insert description
+- Citation Data in Houston, obtained from Stanford Open Policing Project
+- Consists of collection of over 2,000,000 stops over various variables
+
 
 ## Secondary Datasets
 * Census Data
@@ -31,8 +33,10 @@ Insert description
 
 
 ## Exploration
-- bullet 
-- point
+- Understand and contextualize primary dataset
+- Investigate trends that may exhibit potential bias
+- Examined distribution of citations over time, distribution by demographic and distribution by location
+
 
 # Distribution Over Time
 
