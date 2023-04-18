@@ -23,7 +23,9 @@ source("Tables/csqm.R", echo = FALSE)
 # Introduction
 
 ## Primary Dataset: Citations in HTX
-Insert description
+- Citation Data in Houston, obtained from Stanford Open Policing Project
+- Consists of collection of over 2,000,000 stops over various variables
+
 
 ## Secondary Datasets
 * Census Data
@@ -31,8 +33,10 @@ Insert description
 
 
 ## Exploration
-- bullet 
-- point
+- Understand and contextualize primary dataset
+- Investigate trends that may exhibit potential bias
+- Examined distribution of citations over time, distribution by demographic and distribution by location
+
 
 # Distribution Over Time
 
@@ -63,8 +67,6 @@ violin_speed()
 ```
 
 # Distribution by Location
-* Plot - Citation by Sex by District 
-* Table - Citations Per Square Mile 
 
 ## Citation by Sex by District {.smaller}
 ```{r Pyramid, message = FALSE}
@@ -72,25 +74,23 @@ source("subscripts/citation_pyramid.R", local = TRUE, print.eval = TRUE)
 pyramid_cites()
 ```
 
-## Citations Per Square Mile {.smaller}
-Top 5 Beats ranked by citations/square mile:
+## Citations Per Square Mile | Top 5 Beats ranked by citations/square mile:
 ```{r csqm_top, echo = FALSE, message = FALSE}
 knitr::kable(csqm_top)
 ```
-##
-Bottom 5 Beats ranked by citations/square mile
+
+## Citations Per Square Mile | Bottom 5 Beats ranked by citations/square mile
 ```{r csqm_bottom, echo = FALSE, message = FALSE}
 knitr::kable(csqm_bottom)
 ```
-##
-Statistics on number of citations/square mile:
 
+## Citations Per Square Mile | Statistics on citations per square mile:
 ```{r csqm_summry, echo = FALSE, message = FALSE}
 knitr::kable(cqm_summary)
 ```
 
 ## Killer Plot
-<iframe src="http://127.0.0.1:5290" width="100%" height="500px"></iframe>
+<iframe src="http://127.0.0.1:5501" width="100%" height="500px"></iframe>
 
 # Analysis
 
@@ -153,9 +153,8 @@ knitr::kable(gender_speed)
 ##
 ```{r race_gender_speed, echo = FALSE, message = FALSE}
 library(kableExtra)
-kable(race_gender_speed) %>% kable
-
-
+kable(race_gender_speed) %>% kable_styling(font_size=8)
+``` 
 # Conclusion
 
 ## Conclusions
