@@ -44,7 +44,7 @@ line_ry <- function(){
   lines(sort(unique(other$year)), as.vector(table((as.factor(other$year)))), 
         type = "l", col = "purple")
   
-  legend("topright", legend=c("black", "white", "aapi", "unknown", "other"), 
+  graphics::legend("topright", legend=c("black", "white", "aapi", "unknown", "other"), 
          col=c("blue", "red", "green", "orange", "purple"), pch = 20, 
          cex = 0.7, title = "Race")
 }

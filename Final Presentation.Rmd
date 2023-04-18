@@ -1,16 +1,23 @@
 ---
-title: "Final Presenation"
-author: "Siddhi Narayan, Grace Wang, Virginia"
+title: "Final Presentation"
+author: "Siddhi Narayan, Grace Wang, Virginia Baskin"
 date: "2023-04-17"
 output: 
   ioslides_presentation:
+    smaller: true
     widescreen: true
     css: style.css
 runtime: shiny
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE, fig.width = 12, fig.height = 8, out.width = "100%")
+knitr::opts_chunk$set(echo = FALSE, fig.width = 9, fig.height = 5, out.width = "100%")
+source("shiny_plot_setup.R", echo=FALSE)
+source("Tables/Racial_Citation.R", echo = FALSE)
+source("Tables/Racial_Breakdown.R", echo = FALSE)
+source("Tables/FinResp.R", echo = FALSE)
+source("Tables/average_speeding_amt.R", echo = FALSE)
+source("Tables/csqm.R", echo = FALSE)
 ```
 
 # Introduction
@@ -22,42 +29,28 @@ Insert description
 * Census Data
 * GIS/Beats Data
 
-## Census Data
 
-## GIS/Beats Data
-
-# Exploration
-
-## Introduction to Exploration
-
-## Understanding
-* Plot - Latitude and Longitude of Stops 
-
-##
-plot 
+## Exploration
+- bullet 
+- point
 
 # Distribution Over Time
-* Plot - Line Graph of Citations by Race over Time
-* Plot - Frequency of Citations vs. Hours in Day
 
-## Citation Count by Race over the Years
+## Citation Count by Race over the Years {.smaller}
 ```{r Race/Year Line, message=FALSE}
 source("subscripts/line_race_year.R", local=TRUE, print.eval=TRUE)
 line_ry()
 ```
 
-## Citation Frequency for Time of Day
+## Citation Frequency for Time of Day {.smaller}
 ```{r Time of Day Freq, message=FALSE}
 source("subscripts/line_timeofcites.R", local=TRUE, print.eval=TRUE)
 time_line()
 ```
 
 # Distribution by Demographic
-* Plot - Waffle Chart of Citation by Race 
-* Plot - MPH over Speed Limit for Race/Gender
 
-## Citation by Race
-* How close is this to the truth?
+## Citation by Race {.smaller}
 ```{r Waffle, message=FALSE}
 source("subscripts/waffle.R", local=TRUE, print.eval=TRUE)
 waffle()
@@ -73,35 +66,95 @@ violin_speed()
 * Plot - Citation by Sex by District 
 * Table - Citations Per Square Mile 
 
-## Citation by Sex by District
+## Citation by Sex by District {.smaller}
 ```{r Pyramid, message = FALSE}
 source("subscripts/citation_pyramid.R", local = TRUE, print.eval = TRUE)
 pyramid_cites()
 ```
 
-## Citations Per Square Mile
-* table
+## Citations Per Square Mile {.smaller}
+Top 5 Beats ranked by citations/square mile:
+```{r csqm_top, echo = FALSE, message = FALSE}
+knitr::kable(csqm_top)
+```
+##
+Bottom 5 Beats ranked by citations/square mile
+```{r csqm_bottom, echo = FALSE, message = FALSE}
+knitr::kable(csqm_bottom)
+```
+##
+Statistics on number of citations/square mile:
 
+```{r csqm_summry, echo = FALSE, message = FALSE}
+knitr::kable(cqm_summary)
+```
 
 ## Killer Plot
-* Further breakdown Killer Plot by Police District
-<iframe src="http://127.0.0.1:5771" width="100%" height="500px"></iframe>
+<iframe src="http://127.0.0.1:5290" width="100%" height="500px"></iframe>
 
 # Analysis
- 
-## Introduction to Analysis
 
-## Houston Racial Breakdown vs Citations Racial Breakdown
-table
+## Houston Racial Breakdown vs Citations Racial Breakdown {.smaller}
+```{r racial_citation_breakdown, echo = FALSE, message = FALSE}
+knitr::kable(htx)
+```
 
-## Citation Type Racial Breakdown
-table
+## Citation Type Racial Breakdown {.smaller}
+Speeding Citations by Race:
+```{r speeding_race, echo = FALSE, message = FALSE}
+knitr::kable(speeding_race)
+```
+##
+Invalid License Citations by Race:
+```{r license_race, echo = FALSE, message = FALSE}
+knitr::kable(license_race)
+```
 
-## Failure to Establish Financial Responsibility
-table
+##
+Failure to Establish Financial Responsibility Citations by Race:
+```{r financial_race, echo = FALSE, message = FALSE}
+knitr::kable(financial_race)
+```
 
-## Average Speeding Amounts
-table
+##
+Seat Belt Citations by Race:
+```{r seat_belt_race, echo = FALSE, message = FALSE}
+
+knitr::kable(seat_belt_race)
+```
+
+##
+Running a Red Light/Stop Sign Citations by Race:
+```{r stop_light_race, message = FALSE}
+knitr::kable(stop_light_race)
+```
+
+## Failure to Establish Financial Responsibility {.smaller}
+```{r fin_resp, echo = FALSE, message = FALSE}
+knitr::kable(all_perc)
+```
+
+
+## Average Speeding Amounts {.smaller}
+All People (baseline):
+```{r all_speed, echo = FALSE, message = FALSE}
+knitr::kable(all_speed)
+```
+##
+By Race:
+```{r race_speed, echo = FALSE, message = FALSE}
+knitr::kable(race_speed)
+```
+##
+By Gender:
+```{r gender_speed, echo = FALSE, message = FALSE}
+knitr::kable(gender_speed)
+```
+##
+```{r race_gender_speed, echo = FALSE, message = FALSE}
+library(kableExtra)
+kable(race_gender_speed) %>% kable
+
 
 # Conclusion
 
