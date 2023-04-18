@@ -30,3 +30,8 @@ stop_light_race <- mini_htx %>%
   group_by(subject_race) %>%
   summarise(n_individuals = n()) %>%
   arrange(desc(n_individuals))
+
+citation_race <- inner_join(speeding_race, license_race, by = "subject_race")
+citation_race <- inner_join(citation_race, financial_race, by = "subject_race")
+citation_race <- inner_join(citation_race, seat_belt_race, by = "subject_race")
+citation_race <- inner_join(citation_race, stop_light_race, by = "subject_race")
