@@ -25,20 +25,37 @@ source("Tables/csqm.R", echo = FALSE)
 ## Primary Dataset: Citations in HTX
 - Citation Data in Houston, obtained from Stanford Open Policing Project
 - Consists of collection of over 2,000,000 stops over various variables
+- Has 13 key fields of interest concerning the stop 
+  - Race,
+  - Sex, 
+  - Police District, 
+  - Citation Type, 
+  - Location (lat/long),
+  - Car Make and Model
+  - and so on...  
+  - Importantly, all but 3 field are categorical (Speed, Latitude, & Longitude being the only exception)
 
 
 ## Secondary Datasets
 * Census Data
+  - Census Data for the City of Houston from 2021, accessed through US Census Bureau Website    
+  - Provides population estimates for different races and ethnicities in Houston    
+  - We primarily utilized population percentage estimates of race    
+      
+  <br>
 * GIS/Beats Data
+  - Contained GIS (location) data for the City of Houston's Police Beats    
+  - Police District and Area, along with other specific geographic features for each of the 118 Police Beats
 
 
 ## Exploration
-- Understand and contextualize primary dataset
-- Investigate trends that may exhibit potential bias
-- Examined distribution of citations over time, distribution by demographic and distribution by location
+
+- Understand and contextualize primary dataset    
+- Investigate trends that may exhibit potential bias     
+- Examined distribution of citations over time, distribution by demographic and distribution by location    
 
 
-# Distribution Over Time
+# Distributions Over Time
 
 ## Citation Count by Race over the Years {.smaller}
 ```{r Race/Year Line, message=FALSE}
@@ -52,12 +69,17 @@ source("subscripts/line_timeofcites.R", local=TRUE, print.eval=TRUE)
 time_line()
 ```
 
-# Distribution by Demographic
+# Distributions by Demographic
 
-## Citation by Race {.smaller}
+## Citation Count by Race {.smaller}
 ```{r Waffle, message=FALSE}
 source("subscripts/waffle.R", local=TRUE, print.eval=TRUE)
 waffle()
+```
+
+## Houston Racial Breakdown vs Citations Racial Breakdown {.smaller}
+```{r racial_citation_breakdown, echo = FALSE, message = FALSE}
+knitr::kable(htx)
 ```
 
 ## MPH over Speed Limit for Race & Gender {.smaller}
@@ -66,7 +88,7 @@ source("subscripts/violin_speed.R", local=TRUE, print.eval=TRUE)
 violin_speed()
 ```
 
-# Distribution by Location
+# Distributions by Location
 
 ## Citation by Sex by District {.smaller}
 ```{r Pyramid, message = FALSE}
@@ -89,15 +111,12 @@ knitr::kable(csqm_bottom)
 knitr::kable(cqm_summary)
 ```
 
+# Killer Plot!
+
 ## Killer Plot
 <iframe src="http://127.0.0.1:5501" width="100%" height="500px"></iframe>
 
-# Analysis
-
-## Houston Racial Breakdown vs Citations Racial Breakdown {.smaller}
-```{r racial_citation_breakdown, echo = FALSE, message = FALSE}
-knitr::kable(htx)
-```
+# Citation Specific Analysis
 
 ## Citation Type Racial Breakdown {.smaller}
 Speeding Citations by Race:
@@ -129,11 +148,33 @@ Running a Red Light/Stop Sign Citations by Race:
 knitr::kable(stop_light_race)
 ```
 
+## CHANGE THE NAMES
+```{r mega table, message = FALSE}
+knitr::kable(citation_race)
+```
+
+
 ## Failure to Establish Financial Responsibility {.smaller}
 ```{r fin_resp, echo = FALSE, message = FALSE}
 knitr::kable(all_perc)
 ```
 
+## Financial Responsibility Hypothesis Testing {.smaller}
+
+We preformed a hypothesis test at $\alpha = 0.05$ (95% confidence) in order to identify which races have a significantly larger proportion of citations issues solely for "failure to establish financial responsibility" than other races. 
+  <br>
+  
+$H_0: p_1 = p_2$ 
+
+$H_1: p_1 > p_2$ 
+
+  
+- Unrecorded Race (N/A) was greater than all other races 
+  - with $pval < 0.00001$
+  
+   
+- Black individuals had a higher proportion than white, unknown, and AAPI 
+  - with $pval < 0.0005$
 
 ## Average Speeding Amounts {.smaller}
 All People (baseline):
@@ -154,9 +195,24 @@ knitr::kable(gender_speed)
 ```{r race_gender_speed, echo = FALSE, message = FALSE}
 library(kableExtra)
 kable(race_gender_speed) %>% kable_styling(font_size=8)
+detach(package:kableExtra, unload=TRUE)
 ``` 
+
 # Conclusion
 
 ## Conclusions
-conclusions
+- We found preliminary evidences of bias:    
+  - In the differences of proportions by race for failure to show financial responsibility as the only citation     
+  - Black women were given speeding citations at roughly the same rate as black men, but the rate of speeding citations for women of all other races is consistently half that of their male counterparts     
+      
+  <br>    
+- Limitations to our analysis:    
+  - More information needed to confirm any of these findings (so much missing information)    
+    - Pattern to the missingness?     
+    - Severity of bias could change     
+  - We cannot exactly quantify individual bias (as everything is on an aggregate)     
+  
+# Questions? 
+
+  
 
