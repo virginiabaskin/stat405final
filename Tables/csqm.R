@@ -20,4 +20,4 @@ cqm_summary[,3] <- csqm %>% summarise(IQR(Citations_per_sqm))
 
 csqm_top <- csqm %>% arrange(desc(Citations_per_sqm)) %>% slice_head(n=5)
 
-csqm_bottom <- csqm %>% arrange(desc(Citations_per_sqm)) %>% slice_tail(n=5)
+csqm_bottom <- csqm %>% arrange(desc(Citations_per_sqm)) %>% slice_tail(n=5) %>% rename("Citations Per Sq. mi."="Citations_per_sqm")
