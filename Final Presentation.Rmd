@@ -1,15 +1,17 @@
 ---
-title: "Final Presenation"
-author: "Siddhi Narayan, Grace Wang, Virginia"
+title: "Final Presentation"
+author: "Siddhi Narayan, Grace Wang, Virginia Baskin"
 date: "2023-04-17"
 output: 
   ioslides_presentation:
+    smaller: true
     widescreen: true
+    css: style.css
 runtime: shiny
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE, fig.width = 10, fig.height = 6, out.width = "100%")
+knitr::opts_chunk$set(echo = FALSE, fig.width = 9, fig.height = 5, out.width = "100%")
 ```
 
 # Introduction
@@ -21,41 +23,28 @@ Insert description
 * Census Data
 * GIS/Beats Data
 
-## Census Data
 
-## GIS/Beats Data
-
-# Exploration
-
-## Introduction to Exploration
-
-## Understanding
-* Plot - Latitude and Longitude of Stops 
-
-##
-plot 
+## Exploration
+- bullet 
+- point
 
 # Distribution Over Time
-* Plot - Line Graph of Citations by Race over Time
-* Plot - Frequency of Citations vs. Hours in Day
 
-## Citation Count by Race over the Years
+## Citation Count by Race over the Years {.smaller}
 ```{r Race/Year Line, message=FALSE}
 source("subscripts/line_race_year.R", local=TRUE, print.eval=TRUE)
 line_ry()
 ```
 
-## Citation Frequency for Time of Day
+## Citation Frequency for Time of Day {.smaller}
 ```{r Time of Day Freq, message=FALSE}
 source("subscripts/line_timeofcites.R", local=TRUE, print.eval=TRUE)
 time_line()
 ```
 
 # Distribution by Demographic
-* Plot - Waffle Chart of Citation by Race 
-* Plot - MPH over Speed Limit for Race/Gender
 
-## Citation by Race 
+## Citation by Race {.smaller}
 ```{r Waffle, message=FALSE}
 source("subscripts/waffle.R", local=TRUE, print.eval=TRUE)
 waffle()
@@ -71,33 +60,32 @@ violin_speed()
 * Plot - Citation by Sex by District 
 * Table - Citations Per Square Mile 
 
-## Citation by Sex by District
+## Citation by Sex by District {.smaller}
 ```{r Pyramid, message = FALSE}
 source("subscripts/citation_pyramid.R", local = TRUE, print.eval = TRUE)
 pyramid_cites()
 ```
 
-## Citations Per Square Mile
+## Citations Per Square Mile {.smaller}
 * table
-
+* table 
+* table
 
 ## Killer Plot
 <iframe src="http://127.0.0.1:5290" width="100%" height="500px"></iframe>
 
 # Analysis
- 
-## Introduction to Analysis
 
-## Houston Racial Breakdown vs Citations Racial Breakdown
+## Houston Racial Breakdown vs Citations Racial Breakdown {.smaller}
 table
 
-## Citation Type Racial Breakdown
+## Citation Type Racial Breakdown {.smaller}
 table
 
-## Failure to Establish Financial Responsibility
+## Failure to Establish Financial Responsibility {.smaller}
 table
 
-## Average Speeding Amounts
+## Average Speeding Amounts {.smaller}
 table
 
 # Conclusion
