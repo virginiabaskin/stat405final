@@ -45,4 +45,4 @@ nas_fin <- nas %>% filter(violation=="FAILURE TO ESTABLISH FINANCIAL RESPONSIBIL
 nas_perc <- nas_fin[1]/nas_total
 
 all_perc <- data.frame(c(blk_perc, white_perc, aapi_perc, unknown_perc, nas_perc))
-colnames(all_perc) <- c("black", "white", "aapi", "unknown","N/A")
+colnames(all_perc) <- c("Black", "White", "AAPI", "Unknown","Unrecorded")
