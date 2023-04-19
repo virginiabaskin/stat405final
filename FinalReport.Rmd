@@ -1,0 +1,672 @@
+---
+title: "Investigating for Bias in Houston, Texas Police Citations"
+author: "Grace Wang, Virginia Baskin, Siddhi Narayan"
+date: "2023-04-18"
+output: pdf_document
+fontsize: 10pt
+geometry: margin=1in
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r Load packages, include=FALSE}
+library(RSQLite)
+library(readr)
+library(ggplot2)
+library(ggExtra)
+library(ggthemes)
+library(dplyr)
+library(knitr)
+
+mini_htx <- read_csv("Datasets/mini_htx.csv")
+# full_htx <- read_csv("/Users/virginiabaskin/Downloads/tx_houston_2023_01_26.csv")
+# census_csv <- read_csv("/Users/virginiabaskin/Downloads/Census Data Houston.csv")
+# mini_htx <- full_htx[seq(1,2000000,3),]
+mini_htx <- mini_htx %>% rename("Beats" = "beat")
+beats_data <- read_csv("Datasets/COH_POLICE_BEATS.csv")
+# htx_stats <- read_csv("Datasets/DECENNIALPL2020.P2-2023-03-02T224324.csv")
+#dbWriteTable(con, "census", census_csv, overwrite = TRUE)
+
+```
+
+# Introduction
+
+## Problem and Importance
+For our project, we wanted to explore vehicular police stop data from Houston, Texas to investigate and identify any potential biases against particular populations. This problem is not trivial, as it could contribute towards revealing patterns of discrimination or disproportionate targeting of certain groups based on race or gender. Such biases can have serious consequences, such as perpetuating systemic inequality and eroding trust in law enforcement. By analyzing data on police stops and citations, we can illuminate any incongruencies we find to hopefully influence targeted interventions, such as training programs, policy changes, or even community policing initiatives. Overall, investigating data on police stops is an essential step towards creating a fair and just society that ensures equal treatment and protection under the law for all individuals, regardless of their demographic. 
+
+## Primary Dataset: Police Citations in Houston, Texas
+The primary dataset that we used was obtained from the Stanford Open Policing Project, which is a project based in Stanford University that works on collecting and standardizing data on vehicle and pedestrian stops from law enforcement departments across the country. For this project, we looked at the data based in Houston. 
+This dataset consists of a collection of 2,045,972 stops, providing us with an extensive amount of data to work with. The information collected in this dataset typically includes the date and time of the stop, the address of the stop, the latitude and longitude coordinates, and the geocode of the stop. We also have information on the police beat and police district where the stop was performed.
+Additionally, if the stop was a vehicular stop, the dataset includes data on the speed of the vehicle and the speed limit of the area, which can be helpful in understanding the extent to which traffic violations are being targeted by law enforcement officers. We also have information on the color, make, and model of the vehicle. Finally, the dataset includes information on whether a citation was issued and what the outcome of the stop was. 
+One thing to note is that most of these variables (all but three) were categorical, so we had to find unique and innovative ways to analyze and contextualize them.
+
+
+## Secondary Datasets: Census and GIS Data
+### Census Data
+One of the supplementary datasets that our team used was the Census Data of the City of Houston from 2021, which we accessed through the United States Census Bureau website. This dataset gave population estimates of Houston, population percentage estimates of Age and Sex, population percentage estimates of Race and Hispanic Origin, estimates of Population Characteristics, and more. For the purpose of this report, we focused on the population percentage estimates of Race, which gave percentage estimates of White alone, Black or African American alone, American Indian and Alaska Native alone, Asian alone, Native Hawaiian and Other Pacific Islander alone and Two or More Races.
+
+### GIS/Beats Data
+Another supplementary dataset our team utilized was GIS Data for the City of Houston Police Beats. This dataset contains 118 rows (one for each police beat in Houston) and has columns for police district and area (in square miles) among other geographical characteristics. We paired this dataset with our primary dataset in order to geographically contextualize our findings.
+
+# Exploration
+The purpose of our exploration was to understand and contextualize the large primary dataset and investigate any trends that might exhibit potential for bias. We did this by examining a few different factors: distribution  of citations over time, by demographic, and by location. 
+For distribution of citations over time, we aimed to see if there were any discrepancies between citations for each race over time, and generally see how citations differed from 2014-2019. We also looked at the frequency of citations per hour to see if there were any particular patterns, as well as the miles per hour over speed limit per year. 
+For distribution by demographic, we examined the data in several ways: a waffle chart of citation by race, a table comparing citation proportions for each race to their population proportion in Houston, and a plot of MPH over Speed Limit for Race/Gender.
+For distribution by location, we examined this through a population plot of citations by sex and district, as well as a table that displays the number of citations per square mile.
+Finally, we combined our investigation of time, demographic, and location in our killer plot, which gave us insight into the distribution of citations by race, gender, and district over time. 
+
+## Distribution Over Time
+```{r Race Line Graph by Year, echo=FALSE}
+# Visualize totals for each race by year
+# Grace
+
+race_date <- mini_htx[,c("date", "subject_race")] # race and date
+race_date <- na.omit(race_date) # omit na Values
+
+year_only <- function(fulldate){
+  year <- substring(fulldate, 1, 4) # only keep year
+}
+
+black <- race_date[race_date$subject_race=="black",]
+black$year <- unlist(lapply(black$date, year_only))
+plot(sort(unique(black$year)), as.vector(table((as.factor(black$year)))), ylim = c(0, 60000), main = "Citations by Race for Each Year", xlab="Year", ylab = "Count") #200000 when all
+lines(sort(unique(black$year)), as.vector(table((as.factor(black$year)))), type = "l", col = "blue")
+
+white <- race_date[race_date$subject_race=="white",]
+white$year <- unlist(lapply(white$date, year_only))
+points(sort(unique(white$year)), as.vector(table(as.factor(white$year))))
+lines(sort(unique(white$year)), as.vector(table((as.factor(white$year)))), type = "l", col = "red")
+
+aapi <- race_date[race_date$subject_race=="asian/pacific islander",]
+aapi$year <- unlist(lapply(aapi$date, year_only))
+points(sort(unique(aapi$year)), as.vector(table(as.factor(aapi$year))))
+lines(sort(unique(aapi$year)), as.vector(table((as.factor(aapi$year)))), type = "l", col = "green")
+
+
+unknown <- race_date[race_date$subject_race=="unknown",]
+unknown$year <- unlist(lapply(unknown$date, year_only))
+points(sort(unique(unknown$year)), as.vector(table(as.factor(unknown$year))))
+lines(sort(unique(unknown$year)), as.vector(table((as.factor(unknown$year)))), type = "l", col = "orange")
+
+other <- race_date[race_date$subject_race=="other",]
+other$year <- unlist(lapply(other$date, year_only))
+points(sort(unique(other$year)), as.vector(table(as.factor(other$year))))
+lines(sort(unique(other$year)), as.vector(table((as.factor(other$year)))), type = "l", col = "purple")
+
+graphics::legend("topright", 
+       legend=c("black", "white", "aapi", "unknown", "other"), 
+       col=c("blue", "red", "green", "orange", "purple"), 
+       pch = 20, cex = 0.7, title = "Race")
+
+
+
+```
+First, we evaluated the consistency of the distribution of citations between races over the years 2014-2020. We found that the racial distribution of citations remained fairly consistent: from 2014-2019, the greatest number of individuals issued citations were white, but in 2020, black individuals narrowly surpassed white individuals as the racial group with the most citations of any racial group. In each year, individuals of unknown race and asian/pacific islanders also received significantly fewer citations than white and black individuals. In 2019 and 2020, a decrease in citations issued to all races can be observed, likely due to the onset of the COVID-19 Pandemic.
+From this visualization, we did not conclude that there were any significant changes in the relative distribution of citations issued to each racial group over time.
+
+
+```{r Line graph of number of citations vs. Hour in Day, echo=FALSE}
+# Observe citations over time and any time-associate patterns
+time <- as.POSIXct(mini_htx$time, format = "%H:%M:%S")
+hour <- as.numeric(format(time, "%H"))
+count <- data.frame(table(na.omit(hour)))
+plot(count$Var1, count$Freq, type = "n", xlab = "Hour", ylab = "Frequency of Citations", main = "Frequency of Citations vs Hour in Day")
+lines(count$Var1, count$Freq, type = "l", lwd = 2)
+```
+
+Based on the analysis of the frequency of citations over the hours of the day, it appears that there are two distinct peaks, one around 8 am and another around 3 pm. There are several possible explanations for these peaks.
+One possible explanation for the peak around 8 am is that it is due to high travel volume during rush hour. Many people are commuting to work at this time, which may increase the likelihood of traffic violations and, consequently, citations. This is further supported by the fact that there is a lull in citations during the super late and super early hours when there is typically less travel.
+Another possible explanation for the peak around 3 pm is that it is related to school schedules. Children in K-12 typically get out of school around 3 pm, which may cause a spike in traffic volume as parents rush to pick up their children and return home before rush hour. This increased traffic volume could lead to a higher number of traffic violations and citations.
+
+## Distribution by Demographic
+
+```{r Waffle Plot of races, echo=FALSE}
+df <- data.frame(table(na.omit(mini_htx$subject_race)))
+total_freq <- sum(df$Freq)
+df$prop <- df$Freq/total_freq
+num_squares <- round(df$prop*100)
+
+
+df_grid <- data.frame(
+ x = rep(1:10, each = 10),
+ y = rep(1:10, times = 10)
+)
+num_squares <- c(3, 36, 1, 3, 57) #manually add one more square because the rounding resulted in only 99 
+#num_squares <- round(df$prop*100)
+
+df_grid$category <- rep(df$Var1, num_squares)
+ggplot(df_grid, aes(x = x, y = y, fill = category)) +
+ geom_tile(color = "black", size = 0.5) +
+ scale_fill_brewer(palette = "Set3") +
+ labs(title="Waffle Chart of Citations per Race")+
+ theme_void()
+```
+This representation of the percentage of citations by race across all years 2014-2020 provides a visual and geometric way to understand the distribution of citations across different racial groups. The graph shows that white individuals have the highest percentage of citations, followed by black individuals, and then Asian/Pacific Islanders and unknown races.
+Following this plot, our team determined that we would like to compare the distribution of citations by race to the demographics of Houston to see if any racial groups receive a disproportionate amount of citations as compared to their representation within the city of Houston. 
+
+```{r Race Citation Proportion Table, echo=FALSE}
+htx_stats <- read.csv("Datasets/Census Data Houston.csv")
+htx_filtered <- filter(htx_stats, `Fact` %in% c("White alone, percent","Black or African American alone, percent", "American Indian and Alaska Native alone, percent", "Asian alone, percent", "Native Hawaiian and Other Pacific Islander alone, percent","Two or More Races, percent"))
+htx_filtered <- data.frame(htx_filtered$Fact, htx_filtered$Houston.city..Texas)
+htx_filtered <- htx_filtered %>% rename(race = htx_filtered.Fact, population = htx_filtered.Houston.city..Texas)
+htx_filtered <- htx_filtered %>%
+  mutate(pop = as.numeric(sub("%", "", population))/100)  %>%
+  select(-population)
+
+aapi <- htx_filtered %>%filter(`race` %in% c("Asian alone, percent", "Native Hawaiian and Other Pacific Islander alone, percent"))%>% summarize(race = "asian/pacific islander", pop = sum(`pop`))
+htx_filtered <- htx_filtered %>% filter(!race %in% c("Asian alone, percent","Native Hawaiian and Other Pacific Islander alone, percent"))
+htx_filtered <- bind_rows(htx_filtered, aapi)
+htx_pop <- htx_filtered %>% mutate(race = race %>% recode("White alone, percent" = "white", "Black or African American alone, percent" = "black", "American Indian and Alaska Native alone, percent" = "american indian/alaska native", "Two or More Races, percent" = "other"))
+counts <- data.frame(na.omit(table(mini_htx$subject_race)))
+counts$Freq <- counts$Freq/sum(counts$Freq)
+counts <- counts %>% rename(race = Var1, citation_prop = Freq)
+htx <- inner_join(htx_pop, counts, by = "race")
+htx <- htx %>%
+  rename("Race"="race", "Population Proportion"="pop", "Citation Proportion"="citation_prop")
+kable(htx)
+```
+This table shows that the citation proportion for White people is higher than their population proportion in Houston, indicating that they may be disproportionately cited. Similarly, the citation proportion for Black people is also higher than their population proportion, suggesting that they too may be disproportionately cited.
+On the other hand, the citation proportion for Asian/Pacific Islander people is lower than their population proportion, indicating that they may be underrepresented in the citations. However, it's essential to keep in mind that the exact reasons for these disparities are not clear, and there may be several factors contributing to them, such as socioeconomic factors or geographical location.
+It's also worth noting that the "other" population proportion is significantly higher than the citation proportion. Still, this may be due to the fact that mixed-race individuals are classified as "other," while for citation purposes, people giving citations may mark them as a single race. 
+
+
+```{r mph speeding violin plot, echo=FALSE}
+mini_htx2 <- mini_htx
+mini_htx2$diff <- abs(mini_htx2$speed - mini_htx2$posted_speed)
+mini_htx4 <- na.omit(mini_htx2[,c("subject_race", "date", "diff", "subject_sex")])
+  mini_htx4 <- mini_htx4[mini_htx4$diff != 693,]
+  mini_htx4 <- mini_htx4[mini_htx4$diff <= 105,]
+  
+  ggplot(mini_htx4, aes(fill=factor(subject_sex),subject_race, diff)) + 
+    geom_violin() + 
+    labs(title="MPH over Speed Limit for Citation", x="Subject Race",y="MPH Speeding")+
+    guides(fill=guide_legend(title='Subject Sex'))
+
+```
+Moving forward, we chose to visualize MPH over Speed Limit for Citation by subject race and sex in order to identify any discrepancies between speeding amounts that warrant a ticket for different races and genders.
+We observed that the distribution of speeding amounts for individuals of white, black, and unknown race were similar, with the greatest peak around 10 mph, followed by another at 15 mph. Meanwhile, asian/pacific islanders demonstrated a more uniform distribution of speeding amounts from 10-20 mph that tapered off to a maximum of around 30 mph and a minimum of 5 mph. Lastly, individuals of “other” race received citations for speeding in amounts relatively uniformly distributed from 5-30 mph for men and 10-30 mph for women. Density of speeding amounts for each sex within each race were also very similar, although males of every race besides “other” reached a greater maximum speeding amount than females. This is likely due to differences in driving behaviors between males and females (with males typically having  risk tolerance than females), and not evidence of any biases.  
+
+## Distribution by Location
+```{r Pyramid Plot, echo=FALSE, warning=FALSE}
+#x axis citation number, y axis is district, color is gender
+
+library(ggthemes)
+options(scipen = 999)  # turns of scientific notations like 1e+40
+
+test <- table(mini_htx$subject_sex, mini_htx$district)
+new_df <- data.frame(matrix(ncol = 3, nrow = 0))
+for (row in rownames(test)){
+  for (col in colnames(test)){
+    #row in new dataframe
+    #(sex, district, value)
+    new_df <- rbind(new_df, c(row, col, test[row, col]))
+  }
+}
+colnames(new_df) <- c("sex", "district", "count")
+new_df$count <- as.numeric(new_df$count)
+new_df$district <- as.factor(new_df$district)
+
+mens <- new_df[new_df$sex == "male",]
+mens$count <- (mens$count * -1)
+new_df <- rbind(new_df[new_df$sex == "female",], mens)
+new_df$district <- ordered(new_df$district, seq(1,24))
+
+brks <- seq(-50000, 30000, 10000)
+lbls = paste0(as.character(c(seq(500, 0, -100), seq(100, 300, 100))), "k")
+#lbls = paste0(as.character(c(seq(15, 0, -5), seq(5, 15, 5))), "m")
+
+# Plot
+library(ggfortify)
+ggplot(new_df, aes(x = district, y = count, fill = sex)) +   # Fill column
+                              geom_bar(stat = "identity", width = .7) +   # draw the bars
+                              scale_y_continuous(breaks = brks, labels = lbls) + 
+                              coord_flip() +  # Flip axes
+                              labs(title="Citation by Sex by District - Pyramid", y = "Citation Count", x = "District") +
+                              theme_tufte() +  # Tufte theme from ggfortify
+                              theme(plot.title = element_text(hjust = .5), 
+                                    axis.ticks = element_blank()) +   # Centre plot title
+                              scale_fill_brewer(palette = "Dark2")  # Color palette
+options(warn=-1)
+
+```
+To begin our investigation by location, we made a pyramidal graph of citation count by sex for each district. The x-axis is the amount of citations in thousands, and the y-axis is the police district in Houston. This plot reveals interesting aspects of our dataset regarding the proportion of citations by gender. There are generally more citations for men than women for each district. This could be because men are more likely to commit infractions due to higher risk tolerance, or it could be that the rates of infraction are the same for the genders and women are less likely to be given a citation. We think it is most likely the former influencing the imbalance. While the core reason for the discrepancy is unknown, the unequal distribution is clear to see. 
+	An interesting feature is that Districts 21 and 23 have significantly less citations overall, and that is because they are Hobby airport and IAH airport, respectively. Since it is not residential and technically doesn’t have a population, it is only logical that there are less citations for those districts. 
+	District 2 has the most citations overall, which is one of the most densely populated districts, as it contains Montrose, Greater Heights, West University, and other densely populated neighborhoods within the inner loop of Houston. The inner loop (roughly Districts 1, 2, 9, and 10) have ½ million people in ~90 square miles, so it makes sense to see an increase of citations in those districts. 
+
+```{r Citations per sqm table, echo=FALSE, message = FALSE}
+beats_data <- read_csv("Datasets/COH_POLICE_BEATS.csv")
+citations_in_beat <- mini_htx %>% inner_join(beats_data, by="Beats") %>%
+  group_by(Beats) %>%
+  summarise(n_individuals = n())
+
+citations_in_beat <- as.data.frame(citations_in_beat)
+
+cit_beat_area <- citations_in_beat %>% 
+  inner_join(beats_data[,c("Beats", "Area_sq_mi")], by="Beats")
+
+cit_beat_area$Citations_per_sqm <- cit_beat_area$n_individuals / cit_beat_area$Area_sq_mi
+csqm <- cit_beat_area[,c("Beats","Citations_per_sqm")]
+
+cqm_summary <- data.frame(matrix(ncol=3,nrow=1))
+colnames(cqm_summary) <- c("Median","Standard Deviation", "IQR")
+cqm_summary[,1] <- csqm %>% summarise(median(Citations_per_sqm))
+cqm_summary[,2] <- csqm %>% summarise(sd(Citations_per_sqm))
+cqm_summary[,3] <- csqm %>% summarise(IQR(Citations_per_sqm))
+
+csqm_top <- csqm %>% arrange(desc(Citations_per_sqm)) %>% slice_head(n=5) %>% rename("Citations Per Sq. mi."="Citations_per_sqm")
+
+csqm_bottom <- csqm %>% arrange(desc(Citations_per_sqm)) %>% slice_tail(n=5) %>% rename("Citations Per Sq. mi."="Citations_per_sqm")
+
+attr(cqm_summary, "title") <- "Summary of Citations per Square Mile"
+kable(cqm_summary)
+kable(csqm_top)
+kable(csqm_bottom)
+
+```
+
+Next, our team aimed to understand the geographic distribution of citations by calculating the number of citations per square mile within each police beat. We hoped that this investigation would help us identify any beats with an abnormal quantity of citations so that we could narrow down the scope of our investigation for bias. As a part of our investigation, we found the median, standard deviation, and interquartile range of the number of citations per square mile for all police beats and the 5 beats with the greatest and least number of citations per square mile.
+Upon receiving the list of 5 police beats with the greatest number of citations, we cross-referenced a map of Houston’s police beats to view the location and characteristics of these beats. We found that all five of these beats are adjacent, small, and located in the metropolitan heart of Houston. Additionally, we noted that both beats 1A10 and 2A40 are very small in terms of square mileage, but contain two and one police stations, respectively; proximity to police stations could therefore explain the extremely high citations/square mile values for these beats.
+Upon receiving the list of 5 police beats with the lowest number of citations, we once again cross-referenced a map of Houston’s police beats to understand the characteristics of these beats. Our team found that these five beats were located in Houston's suburbs and are all relatively large in terms of square mileage, which explains their low citations/square mile values.
+
+## Killer Plot
+```{r, echo=FALSE, results='hide', message=FALSE}
+library(stringr)
+library(grid)
+library(readr)
+# subset the data to only contain columns of interest
+citations_htx <- mini_htx[,c("subject_race", "subject_sex", "date", "violation")]
+
+# subset the data to only contain rows of violation interest
+citations_htx <- citations_htx %>% 
+  filter(grepl("RED LIGHT", violation)|grepl("STOP SIGN", violation)|
+           grepl("SEAT BELT", violation)|grepl("FINANCIAL RESPONSIBILITY", violation)|
+           grepl("LICENSE", violation)|grepl("SPEEDING", violation)) %>%
+  mutate(date = format(date, format = "%Y"))
+
+#create the circles dataframe which counts individuals in each race, year pairing
+citations_htx_circle <- citations_htx %>%
+  group_by(subject_race, date) %>%
+  summarise(n_individuals = n())
+
+# create the bars dataframe which counts the number of individuals in each race, year, violation, pairing
+
+# create a dataframe with all possible combinations of race, date, sex, and violation
+citations_htx_bar <- citations_htx %>%
+  mutate(red_stop= if_else(grepl("RED LIGHT", violation)|grepl("STOP SIGN", violation), 1, 0)) %>%
+  mutate(seat_belt= if_else(grepl("SEAT BELT", violation), 1, 0)) %>%
+  mutate(fin_resp= if_else(grepl("FINANCIAL RESPONSIBILITY", violation), 1, 0))%>%
+  mutate(license= if_else(grepl("LICENSE", violation), 1, 0))%>%
+  mutate(speeding= if_else(grepl("SPEEDING", violation), 1, 0))%>%
+  select(-violation)%>%
+  group_by(date, subject_race, subject_sex, red_stop, seat_belt, fin_resp, license, speeding)%>%
+  summarise(n_individuals = n())
+```
+
+```{r Barplot Function, echo=FALSE, results='hide'}
+barplot <- function(red_stop_m, red_stop_f, seat_belt_m, seat_belt_f, fin_resp_m, fin_resp_f, license_m, license_f, speeding_m, speeding_f){
+  y <- c(0.5, 0.5)
+  x <- c(0, 1.1)
+  #grid.newpage()
+  citations <- c("red_stop", "seat_belt", "fin_resp", "license", "speeding")
+  male <- c(red_stop_m, seat_belt_m, fin_resp_m, license_m, speeding_m)
+  max_male <- max(male)
+  female <- c(red_stop_f, seat_belt_f, fin_resp_f, license_f, speeding_f)
+  max_female <- max(female)
+  colors <- c("lightcyan","lightpink","moccasin","skyblue1","thistle1")
+  for (i in 1:5){
+    male_scale <-  male[i]/(2*max(male))
+    female_scale <- female[i]/(2*max(female))
+    grid.rect(x=0.2*i-0.1, y = 0.5+0.5*male_scale, height = male_scale, width = 0.199, gp = gpar(fill = colors[i]))
+    grid.rect(x=0.2*i-0.1, y = 0.5-0.5*female_scale, height = female_scale, width = 0.199, gp = gpar(fill = colors[i]))
+    #grid.text(citations[i], x = 0.2*i-0.1, y = 0.52)
+  }
+   grid.lines(x, y, gp = gpar(lwd = 1, col = "black"))
+   #grid.text ("M", x = 0.9, y = 0.9)
+   #grid.text ("F", x = 0.9, y = 0.1)
+}
+```
+
+```{r slay, echo=FALSE, results='hide'}
+bar_run <- function(plot_race,plot_year){
+  new_df <- citations_htx_bar[which(citations_htx_bar$date == plot_year &
+                                      citations_htx_bar$subject_race==plot_race), ]
+  male_df <- new_df[which(new_df$subject_sex == "male"),]
+  female_df <- new_df[which(new_df$subject_sex == "female"),]
+  red_stop_m <- sum(male_df$red_stop == 1)
+  red_stop_f <- sum(female_df$red_stop == 1)
+  seat_belt_m <- sum(male_df$seat_belt == 1)
+  seat_belt_f <- sum(female_df$seat_belt == 1)
+  fin_resp_m <- sum(male_df$fin_resp == 1)
+  fin_resp_f <- sum(female_df$fin_resp == 1)
+  license_m <- sum(male_df$license == 1)
+  license_f <- sum(female_df$license == 1)
+  speeding_m <- sum(male_df$speeding == 1)
+  speeding_f <- sum(female_df$speeding == 1)
+  barplot(red_stop_m, red_stop_f, seat_belt_m, seat_belt_f, fin_resp_m, fin_resp_f, license_m, license_f, speeding_m, speeding_f)
+}
+#bar_run("white", 2014)  
+```
+
+```{r Circles, echo=FALSE, results='hide'}
+
+#DRAW CIRCLE FUNCTION DONE
+
+#given frequency, plot a properly scaled circle in the center of the viewpoint
+#max_cite is the citation count of the race, year with the most citations
+#found by max(cite_counts_list)
+draw_circle <- function(count, max_count = max_cite){
+  my_circle <- circleGrob(name = "my_circle",
+                          x = 0.5, y = 0.5, r = .8*count/(max_count), #radius scale needs to be fixed and them im done
+                          gp = gpar(col = "black", fill = "#BEBEBE66", lty = 1, lwt = 2))
+  grid.draw(my_circle)
+}
+
+# draw_circle(6, 10)
+# popViewport()
+
+```
+
+```{r, echo=FALSE, results='hide'}
+legend <- function(citations, colors){
+  grid.rect(x = 0, y= 0, just = c("left", "bottom"), width = 1, height = .9)
+  grid.text("LEGEND",
+          x = .5, y = 0.915, just = c("center", "bottom"),
+          gp = gpar(fontsize = 10, fontface = "bold"))
+
+  #citations + corresponding colors
+  #citations <- c("Red/Stop", "Seat Belt", "Financial", "License", "Speeding")
+  #colors <- c("lightcyan","lightpink","moccasin","skyblue1","thistle1")
+  ys <- c(0.74, 0.65, 0.56, 0.47, 0.38)
+  grid.text("Citation Type", x= 0.05, y= 0.87, just = c("left", "top"), gp = gpar(fontsize=8, fontface="bold"))
+  for (i in 1:5){
+    grid.rect(x = 0.17, y = ys[i], just = c("left", "bottom"), height = 0.077, width = 0.15, 
+              gp = gpar(col = "black", fill=colors[i]))
+    grid.text(citations[i], x = 0.37, y = ys[i]+0.038, just = c("left", "center"), gp = gpar(fontsize=7))
+  }
+
+  grid.text("Citation Frequency", x = 0.04, y = 0.34, just = c("left", "top"), gp = gpar(fontsize=8, fontface="bold"))
+  grid.text("Compared to other (race, year)s", x = 0.037, y = 0.3, just = c("left", "top"), gp = gpar(fontsize=5))
+  #comparatively less citations for race that year 
+  #comparatively more citations
+
+  grid.circle(x = 0.15, y = 0.233, r = 0.04, gp = gpar(col = "black", fill = "#BEBEBE66", lty = 1, lwt = 2))
+  grid.text("Less Citations", x = 0.3, y = 0.233, just = c("left", "center"), gp = gpar(fontsize=7))
+  grid.text("Overall", x = 0.43, y = 0.2, just = c("left", "center"), gp = gpar(fontsize=7))
+
+  grid.circle(x = 0.18, y = 0.11, r = 0.175, gp = gpar(col = "black", fill = "#BEBEBE66", lty = 1, lwt = 2))
+  grid.text("More Citations", x = 0.4, y = 0.11, just = c("left", "center"), gp = gpar(fontsize=7))
+  grid.text("Overall", x = 0.53, y = 0.075, just = c("left", "center"), gp = gpar(fontsize=7))
+}
+```
+
+```{r Putting Together the Killer Plot, echo=FALSE, message=FALSE}
+# PUT IT ALL TOGETHER
+grid.newpage()
+
+#legend viewport 
+pushViewport(viewport(
+  x = 0.84, y = 0.33, just = c("left", "bottom"),
+  width = 0.16, height = 0.57
+))
+
+#plot legend
+citations <- c("Red/Stop", "Seat Belt", "Financial", "License", "Speeding")
+colors <- c("lightcyan","lightpink","moccasin","skyblue1","thistle1")
+legend(citations, colors)
+
+popViewport()
+
+#main viewport
+pushViewport(viewport(
+  x = 0.1, y = 0.1, just = c("left", "bottom"),
+  width = 0.8, height = 0.9
+))
+#axis
+grid.lines(c(1.75/8, 0.9), c(1.5/8, 1.5/8))
+grid.lines(c(1.75/8, 1.75/8), c(1.5/8, 0.9))
+#grid.lines(c(0.1, 0.9), c(0.5, 0.5))
+grid.text("Killer Plot",
+          x = 1.75/8, y = 0.925, just = c("left", "bottom"),
+          gp = gpar(fontsize = 18)
+)
+pushViewport(viewport(
+  x = 0.1, y = 0.1, just = c("left", "bottom"),
+  width = 0.8, height = 0.8
+))
+#grid.rect(x=0.5, y=0.5, width = 1, height=1)
+rows <- 8
+cols <- 6
+ly <- grid.layout(rows, cols)
+pushViewport(viewport(layout = ly))
+#makes a viewpoint for each 
+
+# vectors to iterate through for different parameters
+races <- unique(citations_htx_bar$subject_race) # races
+years <- unique(citations_htx_bar$date) # dates
+
+# set row labels
+for (i in 1:(rows-1)) {
+  pushViewport(viewport(layout.pos.row=i, layout.pos.col = 1))
+  grid.text(years[i])
+  popViewport()}
+
+# set column labels
+for (j in 2:cols){
+  pushViewport(viewport(layout.pos.row=8, layout.pos.col = j))
+  if (races[j-1]=="asian/pacific islander"){
+    grid.text("AAPI", gp = gpar(fontsize = 12))
+  }
+  else{
+    grid.text(races[j-1], gp = gpar(fontsize = 12))
+  }
+  popViewport()
+}
+
+
+for (i in 1:(rows-1)) {
+  for (j in 2:cols) {
+    
+    # push main grid Viewport
+    pushViewport(viewport(layout.pos.row=i, layout.pos.col = j))
+    
+    # push small viewport
+    pushViewport(viewport(width=0.75, height=0.75, just="centre"))
+    
+    # make bar plot
+    bar_run(races[j-1], years[i])
+    
+    if (j==2){
+      if (i==1){
+        grid.text("M", x = 0.1, y = 0.9, gp=gpar(fontsize=8))
+        grid.text("F", x = 0.1, y = 0.1, gp=gpar(fontsize=8))
+      }
+    }
+    
+    # make circle
+    count <- pull(citations_htx_circle[citations_htx_circle['subject_race']==races[j-1] &                          citations_htx_circle['date']==years[i],"n_individuals"])[1]
+    #max_count <- sum(citations_htx_circle$n_individuals)
+    max_count <- max(citations_htx_circle$n_individuals)
+    draw_circle(count, max_count)
+    
+    # pop small viewport
+    popViewport()
+    
+    # pop main grid viewport
+    popViewport()
+  }
+}
+```
+To truly analyze the key factors of our dataset–how citations change with regards to time, demographics, and location, we created a killer plot that could visually represent a combination of all these aspects of our data. We created a way to visualize citation breakdown by sex, race, year, and district all in one plot. NOTE: this plot is the overall killer plot, and is not subdivided by district. We created one in Shiny which cannot be inserted into a PDF in this manner. This plot here encompasses all districts. 
+On the x-axis, we have the different races in our dataset, while the y-axis are different years. For each (race,year) pair, we created a bar plot where bars above the line represent citations for men, while below the midline represent citations for women. We harvested the free text field of “Citation Type” from our dataset to split the citations into 5 main categories–running a red light or stop sign, failure to wear a seatbelt, failure to establish financial responsibility, operating a vehicle with an invalid driver's license, and driving over the speed limit. The height of the bars represent the frequency of that citation (compared to the other citation types) for that race that year.  The gray circles on the killer plot have a radius that is relative to the greatest number of citations for any race, year combination. This plot is comparative by nature and does not have any objective representations of exact numbers of citations, just how they compare between different years and demographics. All of our important categorical information is represented here in one single killer plot.
+
+# Citation-Specific Analysis
+Following exploration, our team had a more thorough understanding of the dataset and potential areas that we could investigate for bias. Specifically, our team took interest in the role of race in citations and sought to further analyze trends related to subject race.
+
+First, looking at our data, our team noticed that there were 5 main types of violations: speeding, invalid license, failure to establish financial responsibility, failure to wear a seat belt, and running a stop sign/red light. We wanted to analyze the racial breakdown of each type of citation in order to see if any racial group disproportionately received any type of citation.
+
+```{r Table of race by citation, echo=FALSE}
+speeding_race <- mini_htx %>% filter(grepl("SPEEDING", violation)) %>%
+  group_by(subject_race) %>%
+  summarise(n_individuals = n()) %>%
+  arrange(desc(n_individuals)) %>%
+  rename("Subject Race"="subject_race", "Speeding"="n_individuals")
+
+# Invalid License Citations
+license_race <- mini_htx %>% filter(grepl("LICENSE", violation)) %>%
+  group_by(subject_race) %>%
+  summarise(n_individuals = n()) %>%
+  arrange(desc(n_individuals))%>%
+  rename("Subject Race"="subject_race", "Invalid License"="n_individuals")
+
+
+# Failure to establish Financial Responsibility Citations
+financial_race <- mini_htx %>% filter(grepl("FINANCIAL RESPONSIBILITY", violation)) %>%
+  group_by(subject_race) %>%
+  summarise(n_individuals = n()) %>%
+  arrange(desc(n_individuals))%>%
+  rename("Subject Race"="subject_race", "Financial Responsibility"="n_individuals")
+
+# seat belt citations
+seat_belt_race <- mini_htx %>% filter(grepl("SEAT BELT", violation)) %>%
+  group_by(subject_race) %>%
+  summarise(n_individuals = n()) %>%
+  arrange(desc(n_individuals))%>%
+  rename("Subject Race"="subject_race", "Seat Belt"="n_individuals")
+
+
+# Running a stop light/red light
+stop_light_race <- mini_htx %>% 
+  filter(grepl("RED LIGHT", violation)|grepl("STOP SIGN", violation)) %>%
+  group_by(subject_race) %>%
+  summarise(n_individuals = n()) %>%
+  arrange(desc(n_individuals))%>%
+  rename("Subject Race"="subject_race", "Stop Sign/Red Light"="n_individuals")
+
+citation_race <- inner_join(speeding_race, license_race, by = "Subject Race")
+citation_race <- inner_join(citation_race, financial_race, by = "Subject Race")
+citation_race <- inner_join(citation_race, seat_belt_race, by = "Subject Race")
+citation_race <- inner_join(citation_race, stop_light_race, by = "Subject Race")
+kable(citation_race)
+
+```
+For nearly all types of citations, when considering subjects with defined races, white individuals received the most citations, followed by black and AAPI individuals; this aligns with the racial breakdown of the city of Houston.      
+However, black individuals received the most citations for failure to establish financial responsibility, which refers to the inability of the subject to provide proof of insurance. Typically, this citation should only be issued given that the subject has committed some other infraction that necessitates police interaction and request for proof of insurance. So, suspicion may be raised around citations that record failure to establish financial responsibility as the sole infraction, as the officer has not recorded any indication of why the individual was pulled over in the first place. Citations that only reference failure to establish financial responsibility may be useful in identifying possible racial bias, as the officer may have pulled over the individual based on their appearance/race, since they did not indicate any other offense on the citation. This led our team to investigate what proportion of citations for individuals of all races resulted solely from failure to establish financial responsibility.
+
+```{r Financial Responsibility by Race Table, echo=FALSE}
+# black
+black <- mini_htx[mini_htx$subject_race=='black',]
+black_total <- nrow(black)
+
+blk_fin <- black %>% filter(violation=="FAILURE TO ESTABLISH FINANCIAL RESPONSIBILITY") %>%
+  summarise(n_individuals = n()) %>%
+  arrange(desc(n_individuals))
+blk_perc <- blk_fin[1]/black_total
+
+# white
+white <- mini_htx[mini_htx$subject_race=='white',]
+white_total <- nrow(white)
+
+white_fin <- white %>% filter(violation=="FAILURE TO ESTABLISH FINANCIAL RESPONSIBILITY") %>%
+  summarise(n_individuals = n()) %>%
+  arrange(desc(n_individuals))
+white_perc <- white_fin[1]/white_total
+
+# aapi
+aapi <- mini_htx[mini_htx$subject_race=='asian/pacific islander',]
+aapi_total <- nrow(aapi)
+aapi_fin <- aapi %>% filter(violation=="FAILURE TO ESTABLISH FINANCIAL RESPONSIBILITY") %>%
+  summarise(n_individuals = n()) %>%
+  arrange(desc(n_individuals))
+aapi_perc <- aapi_fin[1]/aapi_total
+
+# unknown
+unknown <- mini_htx[mini_htx$subject_race=='unknown',]
+unknown_total <- nrow(unknown)
+
+unknown_fin <- unknown %>% filter(violation=="FAILURE TO ESTABLISH FINANCIAL RESPONSIBILITY") %>%
+  summarise(n_individuals = n()) %>%
+  arrange(desc(n_individuals))
+unknown_perc <- unknown_fin[1]/unknown_total
+
+# NA
+nas <- mini_htx[is.na(mini_htx$subject_race),]
+nas_total <- nrow(unknown)
+
+nas_fin <- nas %>% filter(violation=="FAILURE TO ESTABLISH FINANCIAL RESPONSIBILITY") %>%
+  summarise(n_individuals = n()) %>%
+  arrange(desc(n_individuals))
+nas_perc <- nas_fin[1]/nas_total
+
+# Other
+other <- mini_htx[mini_htx$subject_race=="other",]
+other_total <- nrow(unknown)
+
+other_fin <- other %>% filter(violation=="FAILURE TO ESTABLISH FINANCIAL RESPONSIBILITY") %>%
+  summarise(n_individuals = n()) %>%
+  arrange(desc(n_individuals))
+other_perc <- other_fin[1]/other_total
+
+all_perc <- data.frame(c(blk_perc, white_perc, aapi_perc, unknown_perc, other_perc, nas_perc))
+colnames(all_perc) <- c("Black", "White", "AAPI", "Unknown", "Other", "Unrecorded (N/A)")
+kable(all_perc)
+
+```
+Of all recorded races, the proportion of total citations that mention failure to establish financial responsibility as the sole violation is the highest for individuals of unrecorded race (N/A), followed by black and white individuals and unknown, asian/pacific islanders, and other. It is worth noting that the proportion of financial responsibility citations for unknown race, black, and white individuals were about eighteen, ten, eight times the proportion of these citations for those of AAPI race, respectively. Furthermore, the extremely low proportion of individuals of "Other" race receiving citations solely for failure to establish financial responsibility can be attributed to the extremely low number of citations with race marked as "Other."
+After receiving this data, our team ran hypothesis tests at a 95% confidence interval in order to identify which races have a proportion of citations issued solely for failure to establish financial responsibility that is higher than the same proportions for other races. The proportion of these citations for unrecorded race (N/A) was greater than the proportion for all other races by a statistically significant amount. Additionally, the proportion for black individuals was greater than those of white, unknown, and AAPI race by a statistically significant amount. White individuals also had a proportion that was greater than that of unknown and AAPI race.  
+Excluding unrecorded race, these findings raise suspicion for bias against black individuals as compared to all other races and for white individuals against individuals of AAPI and unknown race. A high proportion of individuals with unrecorded race receiving citations solely for failure to establish financial responsibility can also be suspicious, as this indicates that officers failed to, whether consciously or unconsciously, record the race of these individuals.
+
+Next, we wanted to investigate if different races and sexes received speeding citations equally, or if certain groups were given citations with different frequencies or for different severity of speeding. We started by averaging the entire dataset to create a baseline. 
+
+
+```{r Speeding Citations, echo=FALSE, message=FALSE}
+all_speed <- mutate(mini_htx, diff = speed - posted_speed) %>% 
+  filter(posted_speed >= 0) %>% 
+  summarise(mean = mean(diff, na.rm = TRUE), 
+            median = median(diff, na.rm = TRUE), 
+            sd = sd(diff, na.rm = TRUE))%>%
+  rename("Mean"="mean", "Median"="median", "SD"="sd")
+race_speed <- mutate(mini_htx, diff = speed - posted_speed) %>% 
+  filter(posted_speed >= 0) %>% group_by(subject_race) %>%
+  summarise(total = n(),  ## Function to use internally of summarise only
+            mean = mean(diff, na.rm = TRUE),
+            median = median(diff, na.rm = TRUE),
+            sd = sd(diff, na.rm = TRUE))%>%
+  rename("Subject Race"="subject_race", "Total"="total", "Mean"="mean", "Median"="median", "SD"="sd") 
+gender_speed <- mutate(mini_htx, diff = speed - posted_speed) %>% 
+  filter(posted_speed >= 0) %>% group_by(subject_sex) %>%
+  summarise(total = n(),  
+            mean = mean(diff, na.rm = TRUE),
+            median = median(diff, na.rm = TRUE),
+            sd = sd(diff, na.rm = TRUE)) %>%
+  rename("Subject Sex"="subject_sex")
+race_gender_speed <- mutate(mini_htx, diff = speed - posted_speed) %>% 
+  filter(posted_speed >= 0) %>% group_by(subject_race, subject_sex) %>%
+  summarise(total = n(),
+            mean = mean(diff, na.rm = TRUE),
+            median = median(diff, na.rm = TRUE),
+            sd = sd(diff, na.rm = TRUE)) 
+race_gender_speed <- race_gender_speed %>%
+  filter_at("subject_sex", all_vars(!is.na(.))) %>%
+  rename("Subject Sex"="subject_sex", "Subject Race" = "subject_race", "Total"="total", "Mean"="mean", "Median"="median", "SD"="sd")
+kable(all_speed)
+kable(race_speed)
+options(warn=-1)
+```
+For the breakdown by race, there is not much evidence of bias on this level. 
+One thing to note is the ‘unknown’ category. Police officers fill out these citation reports without asking the subject about their race(s) or ethnicity(s). All of these reported races are from the perspective of the police officers and therefore it is difficult to know the true breakdown. ‘Unknown’ is different from N/A or unrecorded, because the officers did fill out the race section, but itr is an admission that they don’t actually know the race of the subject. 
+Here, the unknown could be evidence of bias. We see that for people the officers are unsure about (and those they didn’t ask to clarify), they are given citations for slower speeds (instead of being let off with a warning, for example). This is unproved and could also be explained by the smaller number of unknowns in the sample. 
+```{r by gender, echo=FALSE}
+kable(gender_speed)
+```
+Here we see that men and women are ticketed for roughly the same speeds, but there are far more men ticketed than women in our dataset. This is not equal to the proportion of men and women in Houston, so this is either evidence that men speed more often than women (due to higher risk tolerances or different driving behaviors), or that officers are more likely to give men citations and let women off with a warning, or that women are simply caught speeding less often. 
+```{r by race and gender, echo=FALSE}
+kable(race_gender_speed)
+```
+When analyzing both race and gender, the key observation to note is that black women are given speeding citations at a very similar rate as black men, while women of all other races have speeding citation counts of nearly half of their male counterparts. Assuming that women of all races speed roughly the same amount, this break in the pattern could be evidence of bias, as it deviates so much from the norm. 
+
+
+# Conclusion
+In the end, we found preliminary evidence of bias that can be used as a starting point for future investigation and can potentially guide future policies and interventions. These preliminary biases were seen in the differences of proportions by race for failure to show financial responsibility as the only citation, particularly for black individuals. Additionally, black women were given speeding citations at roughly the same rate as black men, while the rate of speeding citations for women of all other races was consistently around half of their male counterparts. These peculiarities warrant further investigation, as our analysis unfortunately has some key limitations. Most importantly, our dataset has a lot of messy and missing data. Many fields were free text which is very prone to human error. Many observations have missing data in the race field, and we were not able to discern if there was any pattern to the missingness or if it was missing at random. This is important because if a police officer were to intentionally leave the race category blank when giving a questionable citation, their bias could be obfuscated from our analysis. The only way to definitively diagnose bias is with more data with less missing values in the race category. If that dataset did exist, then the severity of bias could change. It could either become stronger, which would corroborate our findings, or disappear completely, which would mean that what we found was simply an anomaly of the pattern of missingness in this dataset. 
+Despite this limitation, we believe dedicating time and effort to projects like this is important on chance that any bias is illuminated. Holding our police systems accountable and ensuring accountability is fundamentally important to ensure our societal infrastructure functions properly and fairly for all people. It is an essential step to ensure equal treatment and protection under the law for all individuals, regardless of their demographic.
