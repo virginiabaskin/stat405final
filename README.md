@@ -13,7 +13,7 @@ In this project, our team investigated for bias within police citations issued i
 
 **Key Scripts:**
 - **FinalReport.rmd** used to create our final report
-- **FinalPresentation.rmd** used to create our final report
+- **FinalPresentation.rmd** used to create our final presentation
 - Shiny Plot components
   - **ui.R** used to set up the sidebar/slider for our shiny plot
   - **server.R** used to create the plot in the main window
