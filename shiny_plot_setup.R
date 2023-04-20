@@ -8,12 +8,12 @@ library(ggthemes)
 options(dplyr.summarise.inform = FALSE)
 
 # import data
-# full_htx <- read_csv("/stat405final/Datasets/tx_houston_2023_01_26.csv")
+full_htx <- read_csv("/Users/virginiabaskin/Downloads/tx_houston_2023_01_26.csv")
 census_csv <- read_csv("Datasets/Census Data Houston.csv")
 #invisible()
-mini_htx <- read_csv("Datasets/mini_htx.csv")
+#mini_htx <- read_csv("Datasets/mini_htx.csv")
 #invisible(mini_htx)
-# mini_htx <- full_htx[seq(1,2000000,3),]
+mini_htx <- full_htx[seq(1,2000000,3),]
 mini_htx <- mini_htx %>% rename("Beats" = "beat")
 #beats_data <- read_csv("Datasets/COH_POLICE_BEATS.csv")
 #htx_stats <- read_csv("Datasets/DECENNIALPL2020.P2-2023-03-02T224324.csv")

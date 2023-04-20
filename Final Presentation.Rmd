@@ -1,7 +1,7 @@
 ---
-title: "Final Presentation"
+title: "Investigating Bias in Houston Police Stop Citations"
 author: "Siddhi Narayan, Grace Wang, Virginia Baskin"
-date: "2023-04-17"
+date: "2023-04-18"
 output: 
   ioslides_presentation:
     smaller: true
@@ -106,55 +106,21 @@ knitr::kable(csqm_top)
 knitr::kable(csqm_bottom)
 ```
 
-## Citations Per Square Mile | Statistics on citations per square mile:
-```{r csqm_summry, echo = FALSE, message = FALSE}
-knitr::kable(cqm_summary)
-```
-
 # Killer Plot!
 
 ## Killer Plot
-<iframe src="http://127.0.0.1:5501" width="100%" height="500px"></iframe>
+<iframe src="http://127.0.0.1:4965" width="100%" height="500px"></iframe>
 
 # Citation Specific Analysis
 
 ## Citation Type Racial Breakdown {.smaller}
-Speeding Citations by Race:
-```{r speeding_race, echo = FALSE, message = FALSE}
-knitr::kable(speeding_race)
-```
-##
-Invalid License Citations by Race:
-```{r license_race, echo = FALSE, message = FALSE}
-knitr::kable(license_race)
-```
 
-##
-Failure to Establish Financial Responsibility Citations by Race:
-```{r financial_race, echo = FALSE, message = FALSE}
-knitr::kable(financial_race)
-```
-
-##
-Seat Belt Citations by Race:
-```{r seat_belt_race, echo = FALSE, message = FALSE}
-
-knitr::kable(seat_belt_race)
-```
-
-##
-Running a Red Light/Stop Sign Citations by Race:
-```{r stop_light_race, message = FALSE}
-knitr::kable(stop_light_race)
-```
-
-## CHANGE THE NAMES
 ```{r mega table, message = FALSE}
 knitr::kable(citation_race)
 ```
 
 
-## Failure to Establish Financial Responsibility {.smaller}
+## Failure to Establish Financial Responsibility % {.smaller}
 ```{r fin_resp, echo = FALSE, message = FALSE}
 knitr::kable(all_perc)
 ```
@@ -176,22 +142,18 @@ $H_1: p_1 > p_2$
 - Black individuals had a higher proportion than white, unknown, and AAPI 
   - with $pval < 0.0005$
 
-## Average Speeding Amounts {.smaller}
-All People (baseline):
-```{r all_speed, echo = FALSE, message = FALSE}
-knitr::kable(all_speed)
-```
-##
-By Race:
+## Average Speeding Amounts | By Race: 
+
 ```{r race_speed, echo = FALSE, message = FALSE}
 knitr::kable(race_speed)
 ```
-##
-By Gender:
+
+## Average Speeding Amounts | By Sex: 
 ```{r gender_speed, echo = FALSE, message = FALSE}
 knitr::kable(gender_speed)
 ```
 ##
+By Race and Sex: 
 ```{r race_gender_speed, echo = FALSE, message = FALSE}
 library(kableExtra)
 kable(race_gender_speed) %>% kable_styling(font_size=8)
