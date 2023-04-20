@@ -71,6 +71,7 @@ For distribution by location, we examined this through a population plot of cita
 Finally, we combined our investigation of time, demographic, and location in our killer plot, which gave us insight into the distribution of citations by race, gender, and district over time. 
 
 ## Distribution Over Time
+First, we began our exploration by looking at the distribution of citations over time. We first visualized citations issued to each race over the years 2014-2020 in order to evaluate the consistency of the distribution of citations over time.
 ```{r Race Line Graph by Year, echo=FALSE}
 # Visualize totals for each race by year
 # Grace
@@ -117,10 +118,10 @@ graphics::legend("topright",
 
 ```
 
-First, we evaluated the consistency of the distribution of citations between races over the years 2014-2020. We found that the racial distribution of citations remained fairly consistent: from 2014-2019, the greatest number of individuals issued citations were white, but in 2020, black individuals narrowly surpassed white individuals as the racial group with the most citations of any racial group. In each year, individuals of unknown race and asian/pacific islanders also received significantly fewer citations than white and black individuals. In 2019 and 2020, a decrease in citations issued to all races can be observed, likely due to the onset of the COVID-19 Pandemic.
+We found that the racial distribution of citations remained fairly consistent: from 2014-2019, the greatest number of individuals issued citations were white, but in 2020, black individuals narrowly surpassed white individuals as the racial group with the most citations of any racial group. In each year, individuals of unknown race and asian/pacific islanders also received significantly fewer citations than white and black individuals. In 2019 and 2020, a decrease in citations issued to all races can be observed, likely due to the onset of the COVID-19 Pandemic.
 From this visualization, we did not conclude that there were any significant changes in the relative distribution of citations issued to each racial group over time.
 
-
+Next in our investigation of citations throughout time, we decided to visualize the number of citations issued throughout the hours of the day.
 ```{r Line graph of number of citations vs. Hour in Day, echo=FALSE}
 # Observe citations over time and any time-associate patterns
 time <- as.POSIXct(mini_htx$time, format = "%H:%M:%S")
@@ -161,7 +162,7 @@ ggplot(df_grid, aes(x = x, y = y, fill = category)) +
 
 This representation of the percentage of citations by race across all years 2014-2020 provides a visual and geometric way to understand the distribution of citations across different racial groups. The graph shows that white individuals have the highest percentage of citations, followed by black individuals, and then Asian/Pacific Islanders and unknown races.
 
-Following this plot, our team determined that we would like to compare the distribution of citations by race to the demographics of Houston to see if any racial groups receive a disproportionate amount of citations as compared to their representation within the city of Houston. 
+Following this visualization, our team determined that we would like to compare the distribution of citations by race to the demographics of Houston to see if any racial groups receive a disproportionate amount of citations as compared to their representation within the city of Houston. 
 
 ```{r Race Citation Proportion Table, echo=FALSE}
 htx_stats <- read.csv("Datasets/Census Data Houston.csv")
@@ -283,15 +284,27 @@ csqm_top <- csqm %>% arrange(desc(Citations_per_sqm)) %>% slice_head(n=5) %>% re
 csqm_bottom <- csqm %>% arrange(desc(Citations_per_sqm)) %>% slice_tail(n=5) %>% rename("Citations Per Sq. mi."="Citations_per_sqm")
 
 attr(cqm_summary, "title") <- "Summary of Citations per Square Mile"
-kable(cqm_summary)
-kable(csqm_top)
-kable(csqm_bottom)
 
 ```
 
-Next, our team aimed to understand the geographic distribution of citations by calculating the number of citations per square mile within each police beat. We hoped that this investigation would help us identify any beats with an abnormal quantity of citations so that we could narrow down the scope of our investigation for bias. As a part of our investigation, we found the median, standard deviation, and interquartile range of the number of citations per square mile for all police beats and the 5 beats with the greatest and least number of citations per square mile.
-Upon receiving the list of 5 police beats with the greatest number of citations, we cross-referenced a map of Houston’s police beats to view the location and characteristics of these beats. We found that all five of these beats are adjacent, small, and located in the metropolitan heart of Houston. Additionally, we noted that both beats 1A10 and 2A40 are very small in terms of square mileage, but contain two and one police stations, respectively; proximity to police stations could therefore explain the extremely high citations/square mile values for these beats.
+Next, our team aimed to understand the geographic distribution of citations by calculating the number of citations per square mile within each police beat. We hoped that this investigation would help us identify any beats with an abnormal quantity of citations so that we could narrow down the scope of our investigation for bias. As a part of our investigation, we first found the median, standard deviation, and interquartile range of the number of citations per square mile for all police beats.
 
+```{r, echo=FALSE}
+kable(cqm_summary)
+
+```
+
+We then found the top 5 police beats in terms of number of citations:
+```{r, echo=FALSE}
+kable(csqm_top)
+
+```
+Upon receiving the list of 5 police beats with the greatest number of citations, we cross-referenced a map of Houston’s police beats to view the location and characteristics of these beats. We found that all five of these beats are adjacent, small, and located in the metropolitan heart of Houston. Additionally, we noted that both beats 1A10 and 2A40 are very small in terms of square mileage, but contain two and one police stations, respectively; proximity to police stations could therefore explain the extremely high citations/square mile values for these beats.
+Following this, we found the bottom 5 police beats in terms of number of citations: 
+```{r, echo=FALSE}
+kable(csqm_bottom)
+
+```
 Upon receiving the list of 5 police beats with the lowest number of citations, we once again cross-referenced a map of Houston’s police beats to understand the characteristics of these beats. Our team found that these five beats were located in Houston's suburbs and are all relatively large in terms of square mileage, which explains their low citations/square mile values.
 
 ## Killer Plot
