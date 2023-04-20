@@ -23,7 +23,7 @@ library(dplyr)
 library(knitr)
 
 #mini_htx <- read_csv("Datasets/mini_htx.csv")
-full_htx <- read_csv("/Users/virginiabaskin/Downloads/tx_houston_2023_01_26.csv") #was full_htx
+full_htx <- read_csv("/Users/virginiabaskin/Downloads/tx_houston_2023_01_26.csv")
 # census_csv <- read_csv("/Users/virginiabaskin/Downloads/Census Data Houston.csv")
 mini_htx <- full_htx[seq(1,2000000,3),]
 mini_htx <- mini_htx %>% rename("Beats" = "beat")
@@ -71,7 +71,9 @@ For distribution by location, we examined this through a population plot of cita
 Finally, we combined our investigation of time, demographic, and location in our killer plot, which gave us insight into the distribution of citations by race, gender, and district over time. 
 
 ## Distribution Over Time
+
 First, we began our exploration by looking at the distribution of citations over time. We first visualized citations issued to each race over the years 2014-2020 in order to evaluate the consistency of the distribution of citations over time.
+
 ```{r Race Line Graph by Year, echo=FALSE}
 # Visualize totals for each race by year
 # Grace
@@ -122,6 +124,7 @@ We found that the racial distribution of citations remained fairly consistent: f
 From this visualization, we did not conclude that there were any significant changes in the relative distribution of citations issued to each racial group over time.
 
 Next in our investigation of citations throughout time, we decided to visualize the number of citations issued throughout the hours of the day.
+
 ```{r Line graph of number of citations vs. Hour in Day, echo=FALSE}
 # Observe citations over time and any time-associate patterns
 time <- as.POSIXct(mini_htx$time, format = "%H:%M:%S")
