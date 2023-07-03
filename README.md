@@ -1,9 +1,11 @@
-# stat405final
+# Investigating for Bias in Houston, Texas Police Citations
 Final Project for STAT 405 (Spring 2023)
 
 Virginia Baskin, Siddhi Narayan, and Grace Wang
 
 In this project, our team investigated for bias within police citations issued in Houston, Texas using a variety of statistical methods and visualizations.
+
+**Read our final report here:** [Final Report](https://github.com/virginiabaskin/stat405final/blob/main/FinalReport.pdf)
 
 **Primary dataset:** [Stanford Open Policing Dataset for Houston, TX](https://openpolicing.stanford.edu)
 
